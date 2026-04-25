@@ -86,16 +86,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Ensure plans directory exists
-	if err := os.MkdirAll(cfg.PlansDir, 0755); err != nil {
-		fmt.Printf("Error creating plans directory: %v\n", err)
+	// Ensure output directory exists
+	if err := os.MkdirAll(cfg.OutputFolder, 0755); err != nil {
+		fmt.Printf("Error creating output directory: %v\n", err)
 		os.Exit(1)
 	}
 
-	stateFile := filepath.Join(cfg.PlansDir, "state.json")
+	stateFile := filepath.Join(cfg.OutputFolder, "state.json")
 
 	p := breakdown.NewPlanner(breakdown.Config{
-		PlansDir:  cfg.PlansDir,
 		StateFile: stateFile,
 		Workspace: "./workspace",
 		Verbose:   verbose,
@@ -107,7 +106,7 @@ func main() {
 	}
 
 	fmt.Println("Generating file structure...")
-	if err := p.Root.GenerateFilesystemStructure("./breakdown-output"); err != nil {
+	if err := p.Root.GenerateFilesystemStructure(cfg.OutputFolder); err != nil {
 		fmt.Printf("Error generating file structure: %v\n", err)
 		os.Exit(1)
 	}

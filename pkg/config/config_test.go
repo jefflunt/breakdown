@@ -15,12 +15,8 @@ func TestConfigLoadDefault(t *testing.T) {
 		t.Errorf("Expected default model gemini-3.1-flash-lite-preview, got %s", cfg.LLM.Model)
 	}
 
-	home, err := os.UserHomeDir()
-	if err == nil {
-		expectedPlansDir := filepath.Join(home, ".breakdown", "plans")
-		if cfg.PlansDir != expectedPlansDir {
-			t.Errorf("Expected default plans dir %s, got %s", expectedPlansDir, cfg.PlansDir)
-		}
+	if cfg.OutputFolder != "./breakdown-output" {
+		t.Errorf("Expected default output folder ./breakdown-output, got %s", cfg.OutputFolder)
 	}
 }
 
@@ -82,11 +78,8 @@ llm:
 		t.Errorf("Expected provider mock, got %s", cfg.LLM.Provider)
 	}
 
-	home, err := os.UserHomeDir()
-	if err == nil {
-		expectedPlansDir := filepath.Join(home, "custom", "plans")
-		if cfg.PlansDir != expectedPlansDir {
-			t.Errorf("Expected expanded plans dir %s, got %s", expectedPlansDir, cfg.PlansDir)
-		}
+	expectedOutputFolder := "./breakdown-output"
+	if cfg.OutputFolder != expectedOutputFolder {
+		t.Errorf("Expected output folder %s, got %s", expectedOutputFolder, cfg.OutputFolder)
 	}
 }

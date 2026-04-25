@@ -25,7 +25,7 @@ cd breakdown
 Example `~/.breakdown/config.yml`:
 
 ```yaml
-plans_dir: "~/.breakdown/plans"
+output_folder: "~/.breakdown/output" # Directory where the plan will be generated
 llm:
   provider: "gemini" # Supported: "gemini", "copilot", "opencode", "claude"
   model: "gemini-3.1-flash-lite-preview"
@@ -45,7 +45,7 @@ echo "Implement a TUI TODO application" | breakdown
 breakdown -v "Implement a TUI TODO application"
 ```
 
-The tool will generate a directory structure in `./breakdown-output` representing the plan.
+The tool will generate a directory structure in the directory specified by `output_folder` (defaulting to `./breakdown-output`) representing the plan.
 
 ## Mindset for Users & AI Agents
 
