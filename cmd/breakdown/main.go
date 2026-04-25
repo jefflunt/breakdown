@@ -13,6 +13,7 @@ import (
 	"breakdown/pkg/config"
 	"breakdown/pkg/llm"
 	"breakdown/pkg/breakdown"
+	"breakdown/pkg/version"
 )
 
 func isGitRepo() bool {
@@ -36,8 +37,20 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "Enable verbose output")
 	flag.Parse()
 
-	var initialTask string
+	// Handle sub-commands
+	if flag.NArg() > 0 {
+		switch flag.Arg(0) {
+		case "version":
+			fmt.Println(version.Version)
+			os.Exit(0)
+		case "help":
+			flag.Usage()
+			os.Exit(0)
+		}
+	}
 
+	// Task execution logic
+	var initialTask string
 	// Check if data is piped to STDIN
 	stat, err := os.Stdin.Stat()
 	if err == nil && (stat.Mode()&os.ModeCharDevice) == 0 {
@@ -47,7 +60,7 @@ func main() {
 			initialTask = strings.TrimSpace(string(data))
 		}
 	} else if flag.NArg() > 0 {
-		// Optionally allow passing the task as arguments
+		// If it's not a subcommand, treat it as the task
 		initialTask = strings.Join(flag.Args(), " ")
 	}
 
