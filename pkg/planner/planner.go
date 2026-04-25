@@ -24,6 +24,7 @@ type Config struct {
 	Workspace      string // Directory to hold workspaces
 	MaxConcurrency int
 	MaxRetries     int
+	Verbose        bool
 	Atlassian      struct {
 		BaseURL string
 		User    string
@@ -32,6 +33,7 @@ type Config struct {
 }
 
 // ListPlans returns a list of available plan files in the PlansDir, without the .json extension.
+
 func ListPlans(plansDir string) ([]string, error) {
 	var plans []string
 
@@ -90,7 +92,6 @@ func NewPlanner(cfg Config, llm LLMClient) *Planner {
 	return &Planner{
 		Config:       cfg,
 		LLM:          llm,
-		Prompts:      make(chan UserPrompt),
 		llmSemaphore: make(chan struct{}, cfg.MaxConcurrency),
 	}
 }
@@ -472,7 +473,7 @@ func (p *Planner) GetAncestry(node *Node) []string {
 	return ancestry
 }
 
-// Plan recursively decomposes a node, polling the LLM and user until Actionable
+// Plan recursively decomposes a node, polling the LLM until Actionable
 func (p *Planner) Plan(ctx context.Context, node *Node) error {
 	p.mu.RLock()
 	status := node.Status
@@ -506,6 +507,11 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 	if status == StatusActionable {
 		return nil
 	}
+
+	if p.Config.Verbose && node.Depth > 0 {
+		fmt.Fprintf(os.Stderr, "%s%s\n", strings.Repeat("  ", node.Depth), node.Task)
+	}
+
 	if status == StatusComposite {
 		g, gCtx := errgroup.WithContext(ctx)
 		for _, child := range children {
@@ -613,41 +619,15 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 			return g.Wait()
 
 		case ActionAskUser:
+			// In non-interactive mode, we can't ask user.
+			// Just treat as Actionable for now, or log an error.
 			p.mu.Lock()
-			node.Status = StatusNeedsInput
-			p.mu.Unlock()
-
-			// Block and ask user for clarification
-			replyChan := make(chan string)
-			prompt := UserPrompt{
-				NodeID:    node.ID,
-				Task:      node.Task,
-				Question:  resp.Question,
-				ReplyChan: replyChan,
-			}
-
-			// Send the prompt to the UI (blocking until the UI reads it)
-			select {
-			case p.Prompts <- prompt:
-			case <-ctx.Done():
-				return ctx.Err()
-			}
-
-			// Wait for UI to reply
-			var answer string
-			select {
-			case answer = <-replyChan:
-			case <-ctx.Done():
-				return ctx.Err()
-			}
-
-			// Append context and retry loop
-			p.mu.Lock()
-			node.Task = fmt.Sprintf("%s\n\n[Clarification]: %s", node.Task, answer)
-			node.Status = StatusPending
+			node.Status = StatusActionable
+			node.Type = TaskTypeAtomic
+			node.Details = fmt.Sprintf("%s\n\n[Need Input]: %s", node.Details, resp.Question)
 			p.mu.Unlock()
 			p.Save()
-			// The loop will continue, passing the augmented task back to the LLM
+			return nil
 		}
 	}
 }

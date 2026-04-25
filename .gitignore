@@ -21,3 +21,4 @@ go.work
 # Planner specific ephemeral files
 /plans/
 /workspace/
+/breakdown-output/

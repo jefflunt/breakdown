@@ -1,38 +1,36 @@
-See [agent_docs/README.md](agent_docs/README.md) for full documentation.
+# breakdown
 
-### Configuration
-`plan-tui` can be configured using a YAML file located at `~/.planner/config.yml`.
+`breakdown` is a non-interactive CLI tool that takes a complex task and breaks it down into an arbitrarily nested structure of sub-tasks. It outputs the result as a folder/file hierarchy on your local filesystem, where leaf nodes are individual files detailing exactly what to do.
 
-Example `~/.planner/config.yml` for Gemini:
+## Usage
+
+```bash
+# Provide the task as an argument
+breakdown "Implement a new feature for the user dashboard"
+
+# Or pipe the task via STDIN
+echo "Implement a new feature for the user dashboard" | breakdown
+```
+
+The tool will generate a directory structure in `./breakdown-output` representing the plan.
+
+## Configuration
+
+`breakdown` can be configured using a YAML file located at `~/.breakdown/config.yml`.
+
+Example `~/.breakdown/config.yml` for Gemini:
 
 ```yaml
-plans_dir: "~/.planner/plans"
+plans_dir: "~/.breakdown/plans"
 llm:
   provider: "gemini"
   model: "gemini-3.1-flash-lite-preview"
   api_key: "YOUR_API_KEY_HERE"
 ```
 
-Example `~/.planner/config.yml` for GitHub Copilot:
+## Atlassian Integration
 
-```yaml
-plans_dir: "~/.planner/plans"
-llm:
-  provider: "copilot"
-  model: "claude-sonnet-4.5"
-```
-
-Example `~/.planner/config.yml` for opencode:
-
-```yaml
-plans_dir: "~/.planner/plans"
-llm:
-  provider: "opencode"
-  model: "google/gemini-3.1-pro-preview"
-```
-
-### Atlassian Integration
-If configured, the planner automatically fetches content from Jira or Confluence URLs found in tasks or details.
+If configured, `breakdown` automatically fetches content from Jira or Confluence URLs found in tasks or details.
 
 ```yaml
 atlassian:
@@ -41,9 +39,4 @@ atlassian:
   api_key: "YOUR_API_TOKEN_HERE"
 ```
 
-Example usage:
-```bash
-./bin/plan-tui "Implement task from https://your-atlassian-instance.atlassian.net/browse/PROJ-123"
-```
-
-See [agent_docs/config.md](agent_docs/config.md) for full configuration options.
+See `agent_docs/` for more detailed documentation.
