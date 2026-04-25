@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	"planner/pkg/config"
-	"planner/pkg/planner"
+	"breakdown/pkg/config"
+	breakdown "breakdown/pkg/breakdown"
 )
 
 type mockTransport struct {
@@ -50,7 +50,7 @@ func TestClaudeClient_AnalyzeTask(t *testing.T) {
 		},
 	}
 
-	req := planner.LLMRequest{
+	req := breakdown.LLMRequest{
 		Task: "Create a simple python hello world script in hello.py",
 	}
 
@@ -115,7 +115,7 @@ func TestClaudeClient_GetExecCommand(t *testing.T) {
 		t.Fatalf("expected no error creating client, got: %v", err)
 	}
 
-	req := planner.ExecRequest{
+	req := breakdown.ExecRequest{
 		Task:          "Some task",
 		Details:       "Task details",
 		AsciiDiagram:  "diagram",

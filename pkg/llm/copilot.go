@@ -8,10 +8,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"planner/pkg/config"
-	"planner/pkg/logger"
-	"planner/pkg/planner"
-	"planner/prompts"
+	"breakdown/pkg/config"
+	"breakdown/pkg/logger"
+	breakdown "breakdown/pkg/breakdown"
+	"breakdown/prompts"
 )
 
 type CopilotClient struct {
@@ -61,7 +61,7 @@ func (c *CopilotClient) executePrompt(ctx context.Context, prompt string) (strin
 	return output, nil
 }
 
-func (c *CopilotClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest) (planner.LLMResponse, error) {
+func (c *CopilotClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest) (breakdown.LLMResponse, error) {
 	visionRule := ""
 	if req.IsVision {
 		visionRule = "\n\nCRITICAL: This task is the 'Vision' or 'Root' description of the project. It MUST be decomposed into smaller actionable steps, even if it seems simple. NEVER mark a root vision as 'actionable'."
@@ -87,18 +87,18 @@ func (c *CopilotClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest)
 		"TASK":         req.Task,
 	})
 	if err != nil {
-		return planner.LLMResponse{}, err
+		return breakdown.LLMResponse{}, err
 	}
 
 	output, err := c.executePrompt(ctx, prompt)
 
 	if err != nil {
-		return planner.LLMResponse{}, err
+		return breakdown.LLMResponse{}, err
 	}
 
-	var llmResp planner.LLMResponse
+	var llmResp breakdown.LLMResponse
 	if err := json.Unmarshal([]byte(output), &llmResp); err != nil {
-		return planner.LLMResponse{}, fmt.Errorf("failed to unmarshal copilot json: %w\nResponse was: %s", err, output)
+		return breakdown.LLMResponse{}, fmt.Errorf("failed to unmarshal copilot json: %w\nResponse was: %s", err, output)
 	}
 
 	return llmResp, nil
@@ -131,7 +131,7 @@ func (c *CopilotClient) GeneratePlanName(ctx context.Context, task string) (stri
 	return result.Filename, nil
 }
 
-func (c *CopilotClient) GetExecCommand(ctx context.Context, req planner.ExecRequest) (*exec.Cmd, error) {
+func (c *CopilotClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
 	prompt, err := prompts.Load("execute_plan", map[string]string{
 		"TASK":           req.Task,
 		"DETAILS":        req.Details,

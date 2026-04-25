@@ -12,12 +12,12 @@ type Config struct {
 
 ## Configuration File
 
-By default, the breakdown looks for a YAML configuration file at `~/.planner/config.yml`. If this file does not exist, it falls back to a set of in-memory defaults.
+By default, the breakdown looks for a YAML configuration file at `~/.breakdown/config.yml`. If this file does not exist, it falls back to a set of in-memory defaults.
 
 An example `config.yml` looks like:
 
 ```yaml
-plans_dir: "~/.planner/plans"
+plans_dir: "~/.breakdown/plans"
 llm:
   provider: "gemini" # Can be "gemini", "copilot", "claude", or "opencode"
   model: "gemini-3.1-flash-lite-preview"
@@ -58,11 +58,11 @@ atlassian:
 `plan-tui` handles configuration and CLI flags:
 
 1. **Config Path**
-   - **Default:** `~/.planner/config.yml`
+   - **Default:** `~/.breakdown/config.yml`
 
 2. **Plans Directory**
-   - **Default:** `~/.planner/plans/`
-   - **Usage:** Stores all the individual plan JSON files (e.g., `~/.planner/plans/my-plan.json`).
+   - **Default:** `~/.breakdown/plans/`
+   - **Usage:** Stores all the individual plan JSON files (e.g., `~/.breakdown/plans/my-plan.json`).
 
 3. **Plan Name**
    - **CLI Flag:** `-plan my-plan`

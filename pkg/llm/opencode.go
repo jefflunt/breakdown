@@ -9,11 +9,12 @@ import (
 	"os/exec"
 	"strings"
 
-	"planner/pkg/config"
-	"planner/pkg/logger"
-	"planner/pkg/planner"
-	"planner/prompts"
+	"breakdown/pkg/config"
+	"breakdown/pkg/logger"
+	breakdown "breakdown/pkg/breakdown"
+	"breakdown/prompts"
 )
+
 
 type opencodeEvent struct {
 	Type string `json:"type"`
@@ -81,7 +82,7 @@ func (c *OpencodeClient) executePrompt(ctx context.Context, prompt string) (stri
 	return extractJSON(fullText.String()), nil
 }
 
-func (c *OpencodeClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest) (planner.LLMResponse, error) {
+func (c *OpencodeClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest) (breakdown.LLMResponse, error) {
 	visionRule := ""
 	if req.IsVision {
 		visionRule = "\n\nCRITICAL: This task is the 'Vision' or 'Root' description of the project. It MUST be decomposed into smaller actionable steps, even if it seems simple. NEVER mark a root vision as 'actionable'."
@@ -107,17 +108,17 @@ func (c *OpencodeClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest
 		"TASK":         req.Task,
 	})
 	if err != nil {
-		return planner.LLMResponse{}, err
+		return breakdown.LLMResponse{}, err
 	}
 
 	output, err := c.executePrompt(ctx, prompt)
 	if err != nil {
-		return planner.LLMResponse{}, err
+		return breakdown.LLMResponse{}, err
 	}
 
-	var llmResp planner.LLMResponse
+	var llmResp breakdown.LLMResponse
 	if err := json.Unmarshal([]byte(output), &llmResp); err != nil {
-		return planner.LLMResponse{}, fmt.Errorf("failed to unmarshal opencode json: %w\nResponse was: %s", err, output)
+		return breakdown.LLMResponse{}, fmt.Errorf("failed to unmarshal opencode json: %w\nResponse was: %s", err, output)
 	}
 
 	return llmResp, nil
@@ -150,7 +151,7 @@ func (c *OpencodeClient) GeneratePlanName(ctx context.Context, task string) (str
 	return result.Filename, nil
 }
 
-func (c *OpencodeClient) GetExecCommand(ctx context.Context, req planner.ExecRequest) (*exec.Cmd, error) {
+func (c *OpencodeClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
 	prompt, err := prompts.Load("execute_plan", map[string]string{
 		"TASK":           req.Task,
 		"DETAILS":        req.Details,

@@ -52,14 +52,14 @@ This folder follows **Progressive Disclosure** principles — show what exists a
 ## Repo at a Glance
 
 ```
-planner/
+breakdown/
 ├── bin/                       ← Compiled output directory
 ├── cmd/
 │   └── plan-tui/              ← Interactive Terminal UI executable
 ├── pkg/
 │   ├── config/                ← YAML Configuration parsing
 │   ├── llm/                   ← Gemini LLM Client
-│   ├── planner/               ← Core orchestrator logic (tree, node, loop)
+│   ├── breakdown/               ← Core orchestrator logic (tree, node, loop)
 │   ├── version/               ← Binary version definitions
 │   └── tui/                   ← Bubble Tea UI components
 ├── script/                    ← Build, test, and automation scripts

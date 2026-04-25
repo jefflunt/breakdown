@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os/exec"
 
-	"planner/pkg/config"
-	"planner/pkg/planner"
+	"breakdown/pkg/config"
+	breakdown "breakdown/pkg/breakdown"
 )
 
 // NewClient returns a configured LLMClient based on the config provider.
-func NewClient(ctx context.Context, cfg *config.Config) (planner.LLMClient, error) {
+func NewClient(ctx context.Context, cfg *config.Config) (breakdown.LLMClient, error) {
 	switch cfg.LLM.Provider {
 	case "gemini":
 		return NewGeminiClient(ctx, cfg)
@@ -31,9 +31,9 @@ func NewClient(ctx context.Context, cfg *config.Config) (planner.LLMClient, erro
 // MockClient is included for fallback and testing
 type MockClient struct{}
 
-func (m *MockClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest) (planner.LLMResponse, error) {
-	return planner.LLMResponse{
-		Action: planner.ActionActionable,
+func (m *MockClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest) (breakdown.LLMResponse, error) {
+	return breakdown.LLMResponse{
+		Action: breakdown.ActionActionable,
 	}, nil
 }
 
@@ -41,6 +41,6 @@ func (m *MockClient) GeneratePlanName(ctx context.Context, task string) (string,
 	return "mock-plan-name", nil
 }
 
-func (m *MockClient) GetExecCommand(ctx context.Context, req planner.ExecRequest) (*exec.Cmd, error) {
+func (m *MockClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
 	return exec.Command("echo", "mock execution"), nil
 }

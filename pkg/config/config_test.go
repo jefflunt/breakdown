@@ -17,7 +17,7 @@ func TestConfigLoadDefault(t *testing.T) {
 
 	home, err := os.UserHomeDir()
 	if err == nil {
-		expectedPlansDir := filepath.Join(home, ".planner", "plans")
+		expectedPlansDir := filepath.Join(home, ".breakdown", "plans")
 		if cfg.PlansDir != expectedPlansDir {
 			t.Errorf("Expected default plans dir %s, got %s", expectedPlansDir, cfg.PlansDir)
 		}

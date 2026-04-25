@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"testing"
 
-	"planner/pkg/config"
-	"planner/pkg/planner"
+	"breakdown/pkg/config"
+	breakdown "breakdown/pkg/breakdown"
 )
 
 func TestCopilotClient_AnalyzeTask(t *testing.T) {
@@ -27,7 +27,7 @@ func TestCopilotClient_AnalyzeTask(t *testing.T) {
 		return []byte(`{"action": "actionable", "reasoning": "mock"}`), nil, nil
 	}
 
-	req := planner.LLMRequest{
+	req := breakdown.LLMRequest{
 		Task: "Create a simple python hello world script in hello.py",
 	}
 

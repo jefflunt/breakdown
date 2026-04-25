@@ -10,10 +10,10 @@ import (
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
-	"planner/pkg/config"
-	"planner/pkg/logger"
-	"planner/pkg/planner"
-	"planner/prompts"
+	"breakdown/pkg/config"
+	"breakdown/pkg/logger"
+	breakdown "breakdown/pkg/breakdown"
+	"breakdown/prompts"
 )
 
 type GeminiClient struct {
@@ -47,7 +47,7 @@ func NewGeminiClient(ctx context.Context, cfg *config.Config) (*GeminiClient, er
 	}, nil
 }
 
-func (g *GeminiClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest) (planner.LLMResponse, error) {
+func (g *GeminiClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest) (breakdown.LLMResponse, error) {
 	model := g.client.GenerativeModel(g.model)
 
 	// Force JSON output
@@ -78,29 +78,29 @@ func (g *GeminiClient) AnalyzeTask(ctx context.Context, req planner.LLMRequest) 
 		"TASK":         req.Task,
 	})
 	if err != nil {
-		return planner.LLMResponse{}, err
+		return breakdown.LLMResponse{}, err
 	}
 
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 
 	if err != nil {
-		return planner.LLMResponse{}, fmt.Errorf("gemini generation failed: %w", err)
+		return breakdown.LLMResponse{}, fmt.Errorf("gemini generation failed: %w", err)
 	}
 
 	if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
-		return planner.LLMResponse{}, fmt.Errorf("gemini returned an empty response")
+		return breakdown.LLMResponse{}, fmt.Errorf("gemini returned an empty response")
 	}
 
 	// Extract the text part
 	part := resp.Candidates[0].Content.Parts[0]
 	text, ok := part.(genai.Text)
 	if !ok {
-		return planner.LLMResponse{}, fmt.Errorf("expected text response from gemini, got %T", part)
+		return breakdown.LLMResponse{}, fmt.Errorf("expected text response from gemini, got %T", part)
 	}
 
-	var llmResp planner.LLMResponse
+	var llmResp breakdown.LLMResponse
 	if err := json.Unmarshal([]byte(text), &llmResp); err != nil {
-		return planner.LLMResponse{}, fmt.Errorf("failed to unmarshal gemini json: %w\nResponse was: %s", err, text)
+		return breakdown.LLMResponse{}, fmt.Errorf("failed to unmarshal gemini json: %w\nResponse was: %s", err, text)
 	}
 
 	return llmResp, nil
@@ -147,7 +147,7 @@ func (c *GeminiClient) GeneratePlanName(ctx context.Context, task string) (strin
 	return result.Filename, nil
 }
 
-func (g *GeminiClient) GetExecCommand(ctx context.Context, req planner.ExecRequest) (*exec.Cmd, error) {
+func (g *GeminiClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
 	prompt, err := prompts.Load("execute_plan", map[string]string{
 		"TASK":           req.Task,
 		"DETAILS":        req.Details,

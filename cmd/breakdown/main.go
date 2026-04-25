@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"planner/pkg/config"
-	"planner/pkg/llm"
-	"planner/pkg/planner"
+	"breakdown/pkg/config"
+	"breakdown/pkg/llm"
+	"breakdown/pkg/breakdown"
 )
 
 func isGitRepo() bool {
@@ -81,7 +81,7 @@ func main() {
 
 	stateFile := filepath.Join(cfg.PlansDir, "state.json")
 
-	p := planner.NewPlanner(planner.Config{
+	p := breakdown.NewPlanner(breakdown.Config{
 		PlansDir:  cfg.PlansDir,
 		StateFile: stateFile,
 		Workspace: "./workspace",
