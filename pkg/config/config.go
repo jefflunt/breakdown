@@ -25,11 +25,11 @@ type Config struct {
 	MaxRetries     int `yaml:"max_retries"`
 }
 
-// DefaultPath returns the default location for the config file: ~/.breakdown/config.yml
+// DefaultPath returns the default location for the config file: ~/.planner/config.yml
 func DefaultPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return ".breakdown/config.yml" // fallback
+		return ".planner/config.yml" // fallback
 	}
 	return filepath.Join(home, ".breakdown", "config.yml")
 }
@@ -62,7 +62,7 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	if cfg.PlansDir == "" {
-		cfg.PlansDir = "~/.breakdown/plans"
+		cfg.PlansDir = "~/.planner/plans"
 	}
 
 	cfg.PlansDir = expandTilde(cfg.PlansDir)
@@ -83,7 +83,7 @@ func LoadConfig(path string) (*Config, error) {
 
 func DefaultConfig() *Config {
 	cfg := &Config{}
-	cfg.PlansDir = expandTilde("~/.breakdown/plans")
+	cfg.PlansDir = expandTilde("~/.planner/plans")
 	cfg.LLM.Provider = "gemini"
 	cfg.LLM.Model = "gemini-3.1-flash-lite-preview"
 	return cfg

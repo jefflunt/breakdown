@@ -1,6 +1,6 @@
 # Planning Workflow
 
-The core mechanic of **breakdown** is its recursive interaction loop, defined in `pkg/breakdown/breakdown.go` within the `Plan(ctx context.Context, node *Node) error` method.
+The core mechanic of **breakdown** is its recursive interaction loop, defined in `pkg/planner/breakdown.go` within the `Plan(ctx context.Context, node *Node) error` method.
 
 ## The Goal
 Unlike execution-focused agents that try to *do* the work immediately, this project strictly focuses on decomposition until a specific actionable threshold is met.

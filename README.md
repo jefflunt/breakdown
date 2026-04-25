@@ -16,12 +16,12 @@ The tool will generate a directory structure in `./breakdown-output` representin
 
 ## Configuration
 
-`breakdown` can be configured using a YAML file located at `~/.breakdown/config.yml`.
+`breakdown` can be configured using a YAML file located at `~/.planner/config.yml`.
 
-Example `~/.breakdown/config.yml` for Gemini:
+Example `~/.planner/config.yml` for Gemini:
 
 ```yaml
-plans_dir: "~/.breakdown/plans"
+plans_dir: "~/.planner/plans"
 llm:
   provider: "gemini"
   model: "gemini-3.1-flash-lite-preview"
