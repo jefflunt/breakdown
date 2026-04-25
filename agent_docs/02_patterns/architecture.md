@@ -1,10 +1,10 @@
 # Architecture
 
-The **planner** application is fundamentally a tree data structure orchestrator. It is built to recursively decompose a root task into an N-ary tree of subtasks.
+The **breakdown** application is fundamentally a tree data structure orchestrator. It is built to recursively decompose a root task into an N-ary tree of subtasks.
 
 ## Core Concepts
 
-### `planner.Planner`
+### `breakdown.Planner`
 The `Planner` struct is the central orchestrator. It manages the `Root` node, configuration state, file persistence, and the communication channel (`Prompts`) to yield for user input.
 
 ```go
@@ -17,7 +17,7 @@ type Planner struct {
 }
 ```
 
-### `planner.Node`
+### `breakdown.Node`
 A node represents a single task in the task tree.
 - `ID`: UUID for tracking.
 - `Task`: A string describing the work. This string grows as user clarifications are appended to it.
@@ -30,7 +30,7 @@ A node represents a single task in the task tree.
 
 ### TUI
 
-The core planner is entirely decoupled from the user interface, but the primary consumer is the `plan-tui` binary.
+The core breakdown is entirely decoupled from the user interface, but the primary consumer is the `plan-tui` binary.
 
 **`plan-tui`**: Uses [Bubble Tea](https://github.com/charmbracelet/bubbletea) to render an interactive application. The TUI implementation is structured into four main files within `pkg/tui/`:
 - `models.go`: Defines the TUI state and core models, including the application version injected at startup.

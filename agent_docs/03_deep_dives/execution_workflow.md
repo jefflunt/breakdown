@@ -1,6 +1,6 @@
 # Execution Workflow
 
-While **planner** is primarily focused on the recursive decomposition of tasks (Planning Mode), it also provides a bridge to actually execute the generated plan. This is known as **Execution Mode**.
+While **breakdown** is primarily focused on the recursive decomposition of tasks (Planning Mode), it also provides a bridge to actually execute the generated plan. This is known as **Execution Mode**.
 
 Execution Mode works by gathering the selected node's detailed context (Task, Details, AsciiDiagram) along with a serialized representation of the overall plan tree, and passing it to an underlying, execution-capable agent (such as the Gemini CLI, GitHub Copilot CLI, or an Opencode agent) natively in the terminal.
 
@@ -10,7 +10,7 @@ Execution Mode works by gathering the selected node's detailed context (Task, De
 sequenceDiagram
     actor User
     participant TUI as TUI (plan-tui)
-    participant Planner as Planner (pkg/planner)
+    participant Planner as Planner (pkg/breakdown)
     participant Client as LLM Client (pkg/llm)
     participant Prompts as Prompts (pkg/prompts)
     participant OS as Operating System

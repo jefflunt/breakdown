@@ -624,11 +624,18 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 			p.mu.Lock()
 			node.Status = StatusActionable
 			node.Type = TaskTypeAtomic
-			node.Details = fmt.Sprintf("%s\n\n[Need Input]: %s", node.Details, resp.Question)
+			if node.Details == "" {
+				node.Details = fmt.Sprintf("[Need Input]: %s", resp.Question)
+			} else {
+				node.Details = fmt.Sprintf("%s\n\n[Need Input]: %s", node.Details, resp.Question)
+			}
 			p.mu.Unlock()
 			p.Save()
 			return nil
 		}
+		// If we reach here (and it wasn't Actionable), the loop continues
+		// to re-analyze if the node was not Actionable.
+		// For ActionAskUser, we returned.
 	}
 }
 

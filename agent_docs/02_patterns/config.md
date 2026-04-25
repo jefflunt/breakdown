@@ -1,6 +1,6 @@
 # Configuration
 
-The core configuration for the planner is managed via the `planner.Config` struct.
+The core configuration for the breakdown is managed via the `breakdown.Config` struct.
 
 ```go
 type Config struct {
@@ -12,12 +12,12 @@ type Config struct {
 
 ## Configuration File
 
-By default, the planner looks for a YAML configuration file at `~/.planner/config.yml`. If this file does not exist, it falls back to a set of in-memory defaults.
+By default, the breakdown looks for a YAML configuration file at `~/.breakdown/config.yml`. If this file does not exist, it falls back to a set of in-memory defaults.
 
 An example `config.yml` looks like:
 
 ```yaml
-plans_dir: "~/.planner/plans"
+plans_dir: "~/.breakdown/plans"
 llm:
   provider: "gemini" # Can be "gemini", "copilot", "claude", or "opencode"
   model: "gemini-3.1-flash-lite-preview"
@@ -40,12 +40,12 @@ atlassian:
 
 **GitHub Copilot (`provider: "copilot"`)**
 - Requires the `copilot` command line interface to be installed and authenticated (`copilot auth`).
-- Does not require an `api_key` in the planner config since it relies on the CLI's existing session.
+- Does not require an `api_key` in the breakdown config since it relies on the CLI's existing session.
 - The `model` configuration is optional. If left blank, it uses the CLI's default model. You can specify a model like `gpt-4o` if the CLI supports it via the `--model` flag.
 
 **Opencode (`provider: "opencode"`)**
 - Requires the `opencode` command line interface to be installed.
-- Does not require an `api_key` in the planner config since it relies on the CLI's configuration.
+- Does not require an `api_key` in the breakdown config since it relies on the CLI's configuration.
 - The `model` configuration is optional. If left blank, it uses the CLI's default model. When specified, the model must be in the `provider/model` format (e.g. `google/gemini-3.1-pro-preview`).
 
 **Atlassian Integration**
@@ -58,11 +58,11 @@ atlassian:
 `plan-tui` handles configuration and CLI flags:
 
 1. **Config Path**
-   - **Default:** `~/.planner/config.yml`
+   - **Default:** `~/.breakdown/config.yml`
 
 2. **Plans Directory**
-   - **Default:** `~/.planner/plans/`
-   - **Usage:** Stores all the individual plan JSON files (e.g., `~/.planner/plans/my-plan.json`).
+   - **Default:** `~/.breakdown/plans/`
+   - **Usage:** Stores all the individual plan JSON files (e.g., `~/.breakdown/plans/my-plan.json`).
 
 3. **Plan Name**
    - **CLI Flag:** `-plan my-plan`

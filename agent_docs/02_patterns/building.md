@@ -1,4 +1,4 @@
-# Building `planner`
+# Building `breakdown`
 
 This repository uses a set of Bash scripts to manage building and testing.
 

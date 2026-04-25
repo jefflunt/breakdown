@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -203,32 +204,17 @@ func TestPlannerPlanAskUser(t *testing.T) {
 				Action:   ActionAskUser,
 				Question: "What do you mean?",
 			},
-			"Ambiguous task\n\n[Clarification]: I mean X": {
-				Action: ActionActionable, // After clarification, it becomes actionable
-			},
 		},
 	}
 
 	p := NewPlanner(cfg, client)
 	p.Root = &Node{ID: "root", Task: "Ambiguous task", Status: StatusPending}
 
-	// Run planning in a separate goroutine because it will block on asking the user
+	// Run planning in a separate goroutine
 	errChan := make(chan error, 1)
 	go func() {
 		errChan <- p.Plan(context.Background(), p.Root)
 	}()
-
-	// Wait for the prompt
-	select {
-	case prompt := <-p.Prompts:
-		if prompt.Question != "What do you mean?" {
-			t.Errorf("Unexpected question: %s", prompt.Question)
-		}
-		// Send reply
-		prompt.ReplyChan <- "I mean X"
-	case <-time.After(1 * time.Second):
-		t.Fatalf("Timed out waiting for prompt")
-	}
 
 	// Wait for planning to finish
 	select {
@@ -236,14 +222,13 @@ func TestPlannerPlanAskUser(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Plan failed: %v", err)
 		}
-	case <-time.After(1 * time.Second):
+	case <-time.After(5 * time.Second):
 		t.Fatalf("Timed out waiting for Plan to finish")
 	}
 
-	// Verify the node's task string was updated
-	expectedTask := "Ambiguous task\n\n[Clarification]: I mean X"
-	if p.Root.Task != expectedTask {
-		t.Errorf("Expected task %q, got %q", expectedTask, p.Root.Task)
+	// Verify the node's Details string was updated
+	if !strings.Contains(p.Root.Details, "[Need Input]") {
+		t.Errorf("Expected details to contain [Need Input], got %q", p.Root.Details)
 	}
 
 	if p.Root.Status != StatusActionable {

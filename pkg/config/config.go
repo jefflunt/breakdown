@@ -25,13 +25,13 @@ type Config struct {
 	MaxRetries     int `yaml:"max_retries"`
 }
 
-// DefaultPath returns the default location for the config file: ~/.planner/config.yml
+// DefaultPath returns the default location for the config file: ~/.breakdown/config.yml
 func DefaultPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return ".planner/config.yml" // fallback
+		return ".breakdown/config.yml" // fallback
 	}
-	return filepath.Join(home, ".planner", "config.yml")
+	return filepath.Join(home, ".breakdown", "config.yml")
 }
 
 // expandTilde handles resolving the ~ symbol in file paths
@@ -62,20 +62,20 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	if cfg.PlansDir == "" {
-		cfg.PlansDir = "~/.planner/plans"
+		cfg.PlansDir = "~/.breakdown/plans"
 	}
 
 	cfg.PlansDir = expandTilde(cfg.PlansDir)
 
 	// Load Atlassian config from environment variables if not set in config file
 	if cfg.Atlassian.BaseURL == "" {
-		cfg.Atlassian.BaseURL = os.Getenv("PLANNER_ATLASSIAN_BASE_URL")
+		cfg.Atlassian.BaseURL = os.Getenv("BREAKDOWN_ATLASSIAN_BASE_URL")
 	}
 	if cfg.Atlassian.User == "" {
-		cfg.Atlassian.User = os.Getenv("PLANNER_ATLASSIAN_API_USER")
+		cfg.Atlassian.User = os.Getenv("BREAKDOWN_ATLASSIAN_API_USER")
 	}
 	if cfg.Atlassian.APIKey == "" {
-		cfg.Atlassian.APIKey = os.Getenv("PLANNER_ATLASSIAN_API_KEY")
+		cfg.Atlassian.APIKey = os.Getenv("BREAKDOWN_ATLASSIAN_API_KEY")
 	}
 
 	return &cfg, nil
@@ -83,7 +83,7 @@ func LoadConfig(path string) (*Config, error) {
 
 func DefaultConfig() *Config {
 	cfg := &Config{}
-	cfg.PlansDir = expandTilde("~/.planner/plans")
+	cfg.PlansDir = expandTilde("~/.breakdown/plans")
 	cfg.LLM.Provider = "gemini"
 	cfg.LLM.Model = "gemini-3.1-flash-lite-preview"
 	return cfg
