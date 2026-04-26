@@ -3,13 +3,14 @@
 The core mechanic of **breakdown** is its recursive interaction loop, defined in `pkg/breakdown/breakdown.go` within the `Plan(ctx context.Context, node *Node) error` method.
 
 ## The Goal
+
 Unlike execution-focused agents that try to *do* the work immediately, this project strictly focuses on decomposition until a specific actionable threshold is met.
 
 **The Actionable Heuristic:** A leaf node is actionable *if and only if* it describes the creation, deletion, or editing of a single file on disk. 
 - Example: "Refactor the authentication module" -> *Not Actionable* (Multiple files, too vague)
 - Example: "Rename `AuthUser` to `SessionUser` in `src/auth/models.go`" -> *Actionable* (Single file operation)
 
-This ensures that whatever execution harness eventually consumes the leaf nodes can do so with extreme predictability.
+This ensures that the resulting plan can be executed with extreme predictability.
 
 ---
 
@@ -18,23 +19,7 @@ This ensures that whatever execution harness eventually consumes the leaf nodes 
 When `p.Plan(ctx, rootNode)` is called, the orchestrator begins a recursive loop over the tree.
 
 1. **Ask LLM**: `AnalyzeTask(ctx, task)`
-   The LLM is prompted with the current task description and the actionable heuristic. It must return a structured `LLMResponse`:
-
-```go
-type PlanAction string
-const (
-	ActionActionable PlanAction = "actionable"
-	ActionDecompose  PlanAction = "decompose"
-	ActionAskUser    PlanAction = "ask_user"
-)
-
-type LLMResponse struct {
-	Action    PlanAction `json:"action"`
-	Subtasks  []string   `json:"subtasks,omitempty"` // Populated if Action == Decompose
-	Question  string     `json:"question,omitempty"` // Populated if Action == AskUser
-	Reasoning string     `json:"reasoning,omitempty"` 
-}
-```
+   The LLM is prompted with the current task description and the actionable heuristic. It must return a structured `LLMResponse`.
 
 2. **Handle the LLM Response**:
 
@@ -44,13 +29,10 @@ type LLMResponse struct {
    
    - **`ActionAskUser`**: The LLM determines the task is ambiguous (e.g., "Build a web scraper" -> "Which language?"). 
 
-3. **Yielding to User (`ActionAskUser`)**:
-   When the LLM requests clarification, the `Plan()` function blocks.
-   - It constructs a `UserPrompt` object containing the task, the LLM's question, and a `ReplyChan`.
-   - It sends this prompt to the `p.Prompts` channel.
-   - The UI (CLI or TUI) receives the prompt, displays it, and waits for user input.
-   - The UI sends the user's string response back via the `ReplyChan`.
-   - The breakdown appends the answer directly into the node's `Task` context string: `Task = Task + "\n\n[Clarification]: " + answer`.
-   - The `for` loop restarts, feeding the newly augmented task string back into step 1 (`AnalyzeTask`).
+3. **Handling Ambiguity (`ActionAskUser`)**:
+   In non-interactive mode, `breakdown` cannot halt to ask for user input. Instead:
+   - It marks the node as `actionable`.
+   - It appends the LLM's clarification question to the node's `Details` field prefixed with `[Need Input]`.
+   - This ensures the generated Markdown file for that task prompts the *human* to clarify or define the requirement when they actually start working on that file.
 
-This infinite loop guarantees that no branch stops growing until it is perfectly clarified and distilled into single-file actionable nodes.
+This loop guarantees that no branch stops growing until it is either clearly `Actionable` or carries a clear instruction for the user to provide clarification.
