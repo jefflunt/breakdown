@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	 "github.com/jefflunt/breakdown/pkg/config"
@@ -114,10 +113,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	stateFile := filepath.Join(outputFolder, "state.json")
-
 	p := breakdown.NewPlanner(breakdown.Config{
-		StateFile: stateFile,
 		Workspace: "./workspace",
 		Verbose:   verbose,
 	}, client)

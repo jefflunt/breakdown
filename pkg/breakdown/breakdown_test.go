@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -41,65 +40,8 @@ func (m *execMockClient) GetExecCommand(ctx context.Context, req ExecRequest) (*
 	return exec.Command("echo", "mock"), nil
 }
 
-func TestPlannerListPlans(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "breakdown-test")
-	if err != nil {
-		t.Fatalf("Failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	// Create some dummy plan files
-	os.WriteFile(filepath.Join(tempDir, "plan1.json"), []byte("{}"), 0644)
-	os.WriteFile(filepath.Join(tempDir, "plan2.json"), []byte("{}"), 0644)
-	os.WriteFile(filepath.Join(tempDir, "not-a-plan.txt"), []byte("txt"), 0644)
-
-	// ListPlans has been removed as part of the refactor. 
-	// This test needs to be updated or removed.
-}
-
-func TestPlannerPersistence(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "breakdown-test")
-	if err != nil {
-		t.Fatalf("Failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
-
-	p := NewPlanner(cfg, &simpleMockClient{})
-	p.Root = &Node{ID: "test-id", Task: "Testing Save"}
-
-	// Test Save
-	if err := p.Save(); err != nil {
-		t.Fatalf("Failed to save: %v", err)
-	}
-
-	// Verify file exists
-	if _, err := os.Stat(stateFile); os.IsNotExist(err) {
-		t.Fatalf("State file was not created")
-	}
-
-	// Test Load into a new breakdown instance
-	p2 := NewPlanner(cfg, nil)
-	if err := p2.Load(); err != nil {
-		t.Fatalf("Failed to load: %v", err)
-	}
-
-	if p2.Root == nil || p2.Root.ID != "test-id" {
-		t.Errorf("Loaded state does not match saved state")
-	}
-}
-
 func TestPlannerStart(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "breakdown-test")
-	if err != nil {
-		t.Fatalf("Failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	cfg := Config{}
 
 	client := &simpleMockClient{
 		responses: map[string]LLMResponse{
@@ -111,7 +53,7 @@ func TestPlannerStart(t *testing.T) {
 	ctx := context.Background()
 
 	// Starting should initialize the root node and trigger Plan()
-	err = p.Start(ctx, "Do a simple task")
+	err := p.Start(ctx, "Do a simple task")
 	if err != nil {
 		t.Fatalf("Start failed: %v", err)
 	}
@@ -136,8 +78,8 @@ func TestPlannerPlanDecomposition(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	client := &simpleMockClient{
 		responses: map[string]LLMResponse{
@@ -174,8 +116,8 @@ func TestPlannerPlanAskUser(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	client := &simpleMockClient{
 		responses: map[string]LLMResponse{
@@ -222,8 +164,8 @@ func TestPlannerDeleteNode(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	p := NewPlanner(cfg, &simpleMockClient{})
 	p.Root = &Node{
@@ -261,8 +203,8 @@ func TestPlannerAddChild(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	p := NewPlanner(cfg, &simpleMockClient{})
 	p.Root = &Node{
@@ -297,8 +239,8 @@ func TestPlannerAddSibling(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	p := NewPlanner(cfg, &simpleMockClient{})
 	p.Root = &Node{
@@ -354,8 +296,8 @@ func TestPlannerInsertParent(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	p := NewPlanner(cfg, &simpleMockClient{})
 	p.Root = &Node{
@@ -447,8 +389,8 @@ func TestPlannerEditNode(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	p := NewPlanner(cfg, &simpleMockClient{})
 	p.Root = &Node{
@@ -487,8 +429,8 @@ func TestPlannerReplanNode(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 
 	p := NewPlanner(cfg, &simpleMockClient{})
 	p.Root = &Node{
@@ -527,8 +469,8 @@ func TestSerializePlan(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 	p := NewPlanner(cfg, nil)
 
 	p.Root = &Node{
@@ -563,8 +505,8 @@ func TestPlannerGetExecCommand(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	stateFile := filepath.Join(tempDir, "state.json")
-	cfg := Config{StateFile: stateFile}
+	
+	cfg := Config{ }
 	mockClient := &execMockClient{}
 	p := NewPlanner(cfg, mockClient)
 

@@ -2,11 +2,9 @@ package breakdown
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -19,7 +17,6 @@ import (
 
 // Config represents the planner configuration
 type Config struct {
-	StateFile      string
 	Workspace      string // Directory to hold workspaces
 	MaxConcurrency int
 	MaxRetries     int
@@ -34,7 +31,6 @@ type Config struct {
 // Planner is the central orchestrator for the task tree
 type Planner struct {
 	mu           sync.RWMutex
-	saveMu       sync.Mutex
 	Root         *Node           `json:"root"`
 	Config       Config          `json:"config"`
 	LLM          LLMClient       `json:"-"`
@@ -65,29 +61,6 @@ func (p *Planner) RUnlock() {
 	p.mu.RUnlock()
 }
 
-// Load loads the planner state from disk
-func (p *Planner) Load() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	data, err := os.ReadFile(p.Config.StateFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil // No existing state
-		}
-		return fmt.Errorf("failed to read state file: %w", err)
-	}
-
-	return json.Unmarshal(data, p)
-}
-
-// Save persists the planner state to disk
-func (p *Planner) Save() error {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return p.saveUnlocked()
-}
-
 // SerializePlan returns the plan as a string representation.
 func (p *Planner) SerializePlan() string {
 	p.mu.RLock()
@@ -107,22 +80,6 @@ func (p *Planner) serializeNode(n *Node, depth int) string {
 	return res
 }
 
-func (p *Planner) saveUnlocked() error {
-	dir := filepath.Dir(p.Config.StateFile)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("failed to create state dir: %w", err)
-	}
-
-	data, err := json.MarshalIndent(p, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal state: %w", err)
-	}
-
-	p.saveMu.Lock()
-	defer p.saveMu.Unlock()
-	return os.WriteFile(p.Config.StateFile, data, 0644)
-}
-
 // Start initiates the planning process for a root task
 func (p *Planner) Start(ctx context.Context, task string) error {
 	p.mu.Lock()
@@ -134,12 +91,7 @@ func (p *Planner) Start(ctx context.Context, task string) error {
 	}
 	p.mu.Unlock()
 
-	if err := p.Save(); err != nil {
-		return err
-	}
-
 	err := p.Plan(ctx, p.Root)
-	p.Save()
 	return err
 }
 
@@ -178,10 +130,6 @@ func (p *Planner) EditNode(id string, newTask string) (*Node, error) {
 	node.Type = ""
 	node.Children = nil
 
-	if err := p.saveUnlocked(); err != nil {
-		return nil, err
-	}
-
 	return node, nil
 }
 
@@ -202,10 +150,6 @@ func (p *Planner) ReplanNode(id string) (*Node, error) {
 	node.Status = StatusPending
 	node.Type = ""
 	node.Children = nil
-
-	if err := p.saveUnlocked(); err != nil {
-		return nil, err
-	}
 
 	return node, nil
 }
@@ -236,10 +180,6 @@ func (p *Planner) AddChild(parentID string, task string) (*Node, error) {
 	}
 
 	parent.Children = append(parent.Children, child)
-
-	if err := p.saveUnlocked(); err != nil {
-		return nil, err
-	}
 
 	return child, nil
 }
@@ -295,10 +235,6 @@ func (p *Planner) AddSibling(siblingID string, task string, before bool) (*Node,
 	}
 	parent.Children = newChildren
 
-	if err := p.saveUnlocked(); err != nil {
-		return nil, err
-	}
-
 	return newNode, nil
 }
 
@@ -352,21 +288,7 @@ func (p *Planner) InsertParent(targetID string, task string) (*Node, error) {
 	// update depths recursively
 	p.incrementDepth(target)
 
-	if err := p.saveUnlocked(); err != nil {
-		return nil, err
-	}
-
 	return newNode, nil
-}
-
-func (p *Planner) incrementDepth(n *Node) {
-	if n == nil {
-		return
-	}
-	n.Depth++
-	for _, child := range n.Children {
-		p.incrementDepth(child)
-	}
 }
 
 // DeleteNode removes a node and all its children from the tree.
@@ -380,7 +302,7 @@ func (p *Planner) DeleteNode(id string) error {
 
 	if p.Root.ID == id {
 		p.Root = nil
-		return p.saveUnlocked() // Call save unlocked to prevent deadlock
+		return nil
 	}
 
 	parent := p.findParent(p.Root, id)
@@ -392,7 +314,17 @@ func (p *Planner) DeleteNode(id string) error {
 			}
 		}
 	}
-	return p.saveUnlocked()
+	return nil
+}
+
+func (p *Planner) incrementDepth(n *Node) {
+	if n == nil {
+		return
+	}
+	n.Depth++
+	for _, child := range n.Children {
+		p.incrementDepth(child)
+	}
 }
 
 func (p *Planner) findParent(current *Node, childID string) *Node {
@@ -540,7 +472,6 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 			node.Type = TaskTypeAtomic
 			node.Status = StatusActionable
 			p.mu.Unlock()
-			p.Save()
 			return nil // Branch terminates successfully
 		case ActionDecompose:
 			p.mu.Lock()
@@ -557,7 +488,6 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 				node.Children = append(node.Children, child)
 			}
 			p.mu.Unlock()
-			p.Save()
 
 			// Recursively plan children
 			g, gCtx := errgroup.WithContext(ctx)
@@ -591,7 +521,6 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 				node.Details = fmt.Sprintf("%s\n\n[Need Input]: %s", node.Details, resp.Question)
 			}
 			p.mu.Unlock()
-			p.Save()
 			return nil
 		}
 		// If we reach here (and it wasn't Actionable), the loop continues
