@@ -18,6 +18,15 @@ cd breakdown
 ./script/build-test-install
 ```
 
+### Installation (Curl)
+You can also install the latest pre-built binary directly:
+
+```bash
+curl -sL https://raw.githubusercontent.com/jefflunt/breakdown/main/script/curl-install.sh | bash -s <tag>
+```
+
+Replace `<tag>` with the desired release tag (e.g., `b1`).
+
 ### Configuration
 
 `breakdown` requires a configuration file located at `~/.breakdown/config.yml`.
