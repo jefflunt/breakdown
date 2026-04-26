@@ -53,6 +53,7 @@ jobs:
           if [ "${{ matrix.goos }}" == "windows" ]; then
             EXT=".exe"
           fi
+          go mod download
           go build -ldflags "-X github.com/jefflunt/breakdown/pkg/version.Version=${VERSION}" -o breakdown-${{ matrix.goos }}-${{ matrix.goarch }}${EXT} ./cmd/breakdown
 
       - name: Upload binaries
