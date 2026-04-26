@@ -25,7 +25,7 @@ echo "Installing version: ${version}"
 for cmd in cmd/breakdown; do
     name=$(basename "$cmd")
     echo "Installing ${name} to $(go env GOPATH)/bin..."
-    go install -ldflags "-X github.com/jefflunt/breakdown/pkg/version.Version=${version}" "./$cmd"
+    go install -ldflags "-X breakdown/pkg/version.Version=${version}" "./$cmd"
 done
 
 echo "Installation complete!"

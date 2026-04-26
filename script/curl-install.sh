@@ -22,18 +22,9 @@ fi
 
 # We need a tag
 if [ -z "$1" ]; then
-    echo "Usage: curl -sL https://raw.githubusercontent.com/jefflunt/github.com/jefflunt/breakdown/main/script/curl-install.sh | bash -s <tag>"
-    echo "Example tag: b1"
-    exit 1
-fi
-TAG=$1
+    echo "Usage: curl -sL https://raw.githubusercontent.com/jefflunt/breakdown/main/script/curl-install.sh | bash -s <tag>"
+URL="https://github.com/jefflunt/breakdown/releases/download/${TAG}/${BINARY_NAME}"
 
-BINARY_NAME="breakdown-${OS}-${ARCH}"
-if [ "$OS" == "windows" ]; then
-    BINARY_NAME="${BINARY_NAME}.exe"
-fi
-
-URL="https://github.com/jefflunt/github.com/jefflunt/breakdown/releases/download/${TAG}/${BINARY_NAME}"
 
 echo "Downloading ${BINARY_NAME} from ${URL}..."
 
