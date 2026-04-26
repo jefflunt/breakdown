@@ -28,18 +28,16 @@ A node represents a single task in the task tree.
   - `actionable` (analyzed, single file operation)
   - `needs_input` (waiting for user clarification)
 
-### TUI
+### Filesystem Generation
 
-The core breakdown is entirely decoupled from the user interface, but the primary consumer is the `plan-tui` binary.
+The core breakdown is entirely decoupled from user interactivity. The primary output mechanism is the `GenerateFilesystemStructure` method on the `Node`.
 
-**`plan-tui`**: Uses [Bubble Tea](https://github.com/charmbracelet/bubbletea) to render an interactive application. The TUI implementation is structured into four main files within `pkg/tui/`:
-- `models.go`: Defines the TUI state and core models, including the application version injected at startup.
-- `view.go`: Implements rendering logic.
-- `update.go`: Handles input, events, and message processing.
-- `tui.go`: Coordinates TUI component initialization and lifecycle.
+Once planning is complete, this method recursively traverses the task tree to generate a filesystem hierarchy:
+- **Composite Nodes** become folders prefixed with a numeric ID (e.g., `01-task-name`).
+- **Actionable Nodes** become Markdown files (e.g., `01-task-name.md`).
 
-The application listens for `UserPrompt` messages asynchronously in its `Update` loop. When a prompt is received, it swaps the view to display a [Bubbles `textinput`](https://github.com/charmbracelet/bubbles/tree/master/textinput) component inline, capturing the user's answer and sending it back to the channel.
+This ensures the plan is readily usable in any text editor or IDE.
 
 ### State Persistence
 
-The tree is saved to `plans/<plan-name>.json` (by default) after *every* mutation. The `Planner.Save()` method uses `sync.RWMutex` to ensure thread-safe writes. This directory structure enables managing multiple concurrent plans effectively. Each file acts as a single source of truth for its specific plan, meaning a planning session can be interrupted and resumed identically simply by selecting the plan again in the TUI or providing it via CLI arguments.
+The tree is saved to `<output_folder>/state.json` (by default `breakdown-output/state.json`) after *every* mutation. The `Planner.Save()` method uses `sync.RWMutex` to ensure thread-safe writes. This file acts as the source of truth for the session, meaning a planning session can be interrupted and resumed identically simply by loading the state.

@@ -56,7 +56,7 @@ breakdown/
 └── agent_docs/                ← this documentation tree
 ```
 
-**Module:** `breakdown`  
+**Module:** `github.com/jefflunt/breakdown`  
 **Go version:** 1.26+  
 
 ---
