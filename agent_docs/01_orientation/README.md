@@ -16,10 +16,10 @@ Unlike previous versions, `breakdown` is non-interactive: it generates the plan 
 ```
 
 ### Usage
-Run with an argument or via STDIN:
+Write your task description, requirements, or architecture ideas into a text/markdown file, then run:
 
 ```bash
-breakdown "Implement a TUI TODO application"
+breakdown my-prompt.md
 # The plan is generated in ./breakdown-output/
 ```
 

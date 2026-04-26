@@ -43,15 +43,14 @@ llm:
 
 ## Usage
 
-```bash
-# Provide the task as an argument
-breakdown "Implement a TUI TODO application"
+`breakdown` takes a file path as its primary argument. This file should contain your prompt, feature request, or problem description.
 
-# Or pipe the task via STDIN
-echo "Implement a TUI TODO application" | breakdown
+```bash
+# Provide a prompt file as an argument
+breakdown my-prompt.md
 
 # Use -v to see the decomposition progress in real-time
-breakdown -v "Implement a TUI TODO application"
+breakdown -v my-prompt.md
 ```
 
 The tool will generate a directory structure in the directory specified by `output_folder` (defaulting to `./breakdown-output`) representing the plan.

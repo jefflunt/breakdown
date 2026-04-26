@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -51,21 +50,23 @@ func main() {
 
 	// Task execution logic
 	var initialTask string
-	// Check if data is piped to STDIN
-	stat, err := os.Stdin.Stat()
-	if err == nil && (stat.Mode()&os.ModeCharDevice) == 0 {
-		// Read from STDIN
-		data, err := io.ReadAll(os.Stdin)
-		if err == nil {
-			initialTask = strings.TrimSpace(string(data))
-		}
-	} else if flag.NArg() > 0 {
-		// If it's not a subcommand, treat it as the task
-		initialTask = strings.Join(flag.Args(), " ")
+	
+	if flag.NArg() == 0 {
+		fmt.Println("Error: No prompt file provided. Usage: breakdown <path-to-prompt-file>")
+		os.Exit(1)
 	}
 
+	promptFilePath := flag.Arg(0)
+	data, err := os.ReadFile(promptFilePath)
+	if err != nil {
+		fmt.Printf("Error reading prompt file '%s': %v\n", promptFilePath, err)
+		os.Exit(1)
+	}
+	
+	initialTask = strings.TrimSpace(string(data))
+
 	if initialTask == "" {
-		fmt.Println("Error: No task provided.")
+		fmt.Printf("Error: Prompt file '%s' is empty.\n", promptFilePath)
 		os.Exit(1)
 	}
 
