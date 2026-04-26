@@ -48,6 +48,8 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
+          pwd
+          ls -R
           VERSION=${{ github.ref_name }}-${{ matrix.goarch }}
           EXT=""
           if [ "${{ matrix.goos }}" == "windows" ]; then
