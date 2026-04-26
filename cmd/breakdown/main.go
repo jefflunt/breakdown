@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	 "breakdown/pkg/config"
-	 "breakdown/pkg/llm"
-	 "breakdown/pkg/breakdown"
-	"breakdown/pkg/version"
+	 "github.com/jefflunt/breakdown/pkg/config"
+	 "github.com/jefflunt/breakdown/pkg/llm"
+	 "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/version"
 )
 
 func isGitRepo() bool {

@@ -25,11 +25,11 @@ type Config struct {
 	MaxRetries     int `yaml:"max_retries"`
 }
 
-// DefaultPath returns the default location for the config file: ~/.breakdown/config.yml
+// DefaultPath returns the default location for the config file: ~/.github.com/jefflunt/breakdown/config.yml
 func DefaultPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return ".breakdown/config.yml" // fallback
+		return ".github.com/jefflunt/breakdown/config.yml" // fallback
 	}
 	return filepath.Join(home, ".breakdown", "config.yml")
 }

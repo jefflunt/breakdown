@@ -53,7 +53,7 @@ jobs:
           if [ "${{ matrix.goos }}" == "windows" ]; then
             EXT=".exe"
           fi
-          go build -ldflags "-X breakdown/pkg/version.Version=${VERSION}" -o breakdown-${{ matrix.goos }}-${{ matrix.goarch }}${EXT} ./cmd/breakdown
+          go build -ldflags "-X github.com/jefflunt/breakdown/pkg/version.Version=${VERSION}" -o breakdown-${{ matrix.goos }}-${{ matrix.goarch }}${EXT} ./cmd/breakdown
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4

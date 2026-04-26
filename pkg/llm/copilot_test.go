@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"testing"
 
-	 "breakdown/pkg/config"
-	breakdown  "breakdown/pkg/breakdown"
+	 "github.com/jefflunt/breakdown/pkg/config"
+	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
 )
 
 func TestCopilotClient_AnalyzeTask(t *testing.T) {
