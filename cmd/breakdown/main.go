@@ -51,12 +51,14 @@ func main() {
 	// Task execution logic
 	var initialTask string
 	
-	if flag.NArg() == 0 {
-		fmt.Println("Error: No prompt file provided. Usage: breakdown <path-to-prompt-file>")
+	if flag.NArg() < 2 {
+		fmt.Println("Error: Missing arguments. Usage: breakdown <path-to-prompt-file> <output-folder>")
 		os.Exit(1)
 	}
 
 	promptFilePath := flag.Arg(0)
+	outputFolder := flag.Arg(1)
+
 	data, err := os.ReadFile(promptFilePath)
 	if err != nil {
 		fmt.Printf("Error reading prompt file '%s': %v\n", promptFilePath, err)
@@ -87,13 +89,32 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Ensure output directory exists
-	if err := os.MkdirAll(cfg.OutputFolder, 0755); err != nil {
-		fmt.Printf("Error creating output directory: %v\n", err)
+	// Ensure output directory exists or handle existing directory
+	info, err := os.Stat(outputFolder)
+	if err == nil {
+		if !info.IsDir() {
+			fmt.Printf("Error: Path '%s' exists and is not a directory.\n", outputFolder)
+			os.Exit(1)
+		}
+		
+		fmt.Printf("Output directory '%s' already exists. Overwrite? [y/N]: ", outputFolder)
+		var response string
+		fmt.Scanln(&response)
+		if strings.ToLower(response) != "y" {
+			fmt.Println("Operation cancelled.")
+			os.Exit(0)
+		}
+	} else if os.IsNotExist(err) {
+		if err := os.MkdirAll(outputFolder, 0755); err != nil {
+			fmt.Printf("Error creating output directory: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Printf("Error checking output directory: %v\n", err)
 		os.Exit(1)
 	}
 
-	stateFile := filepath.Join(cfg.OutputFolder, "state.json")
+	stateFile := filepath.Join(outputFolder, "state.json")
 
 	p := breakdown.NewPlanner(breakdown.Config{
 		StateFile: stateFile,
@@ -107,9 +128,9 @@ func main() {
 	}
 
 	fmt.Println("Generating file structure...")
-	if err := p.Root.GenerateFilesystemStructure(cfg.OutputFolder); err != nil {
+	if err := p.Root.GenerateFilesystemStructure(outputFolder); err != nil {
 		fmt.Printf("Error generating file structure: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("Done. Breakdown output available in ./breakdown-output.")
+	fmt.Printf("Done. Breakdown output available in %s.\n", outputFolder)
 }

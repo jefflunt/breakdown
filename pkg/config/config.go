@@ -10,7 +10,6 @@ import (
 )
 
 type Config struct {
-	OutputFolder string `yaml:"output_folder"`
 	LLM      struct {
 		Provider string `yaml:"provider"`
 		Model    string `yaml:"model"`
@@ -61,12 +60,6 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config file at %s: %w", expandedPath, err)
 	}
 
-	if cfg.OutputFolder == "" {
-		cfg.OutputFolder = "./breakdown-output"
-	}
-
-	cfg.OutputFolder = expandTilde(cfg.OutputFolder)
-
 	// Load Atlassian config from environment variables if not set in config file
 	if cfg.Atlassian.BaseURL == "" {
 		cfg.Atlassian.BaseURL = os.Getenv("BREAKDOWN_ATLASSIAN_BASE_URL")
@@ -83,7 +76,6 @@ func LoadConfig(path string) (*Config, error) {
 
 func DefaultConfig() *Config {
 	cfg := &Config{}
-	cfg.OutputFolder = "./breakdown-output"
 	cfg.LLM.Provider = "gemini"
 	cfg.LLM.Model = "gemini-3.1-flash-lite-preview"
 	return cfg

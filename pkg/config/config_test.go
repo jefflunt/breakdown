@@ -14,10 +14,6 @@ func TestConfigLoadDefault(t *testing.T) {
 	if cfg.LLM.Model != "gemini-3.1-flash-lite-preview" {
 		t.Errorf("Expected default model gemini-3.1-flash-lite-preview, got %s", cfg.LLM.Model)
 	}
-
-	if cfg.OutputFolder != "./breakdown-output" {
-		t.Errorf("Expected default output folder ./breakdown-output, got %s", cfg.OutputFolder)
-	}
 }
 
 func TestConfigExpandTilde(t *testing.T) {
@@ -76,10 +72,5 @@ llm:
 
 	if cfg.LLM.Provider != "mock" {
 		t.Errorf("Expected provider mock, got %s", cfg.LLM.Provider)
-	}
-
-	expectedOutputFolder := "./breakdown-output"
-	if cfg.OutputFolder != expectedOutputFolder {
-		t.Errorf("Expected output folder %s, got %s", expectedOutputFolder, cfg.OutputFolder)
 	}
 }
