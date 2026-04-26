@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 
-	"breakdown/pkg/config"
-	breakdown "breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
 )
 
 // NewClient returns a configured LLMClient based on the config provider.

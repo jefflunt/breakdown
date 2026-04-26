@@ -28,7 +28,7 @@ mkdir -p bin
 for cmd in cmd/breakdown; do
     name=$(basename "$cmd")
     echo "Building ${name}..."
-    go build -ldflags "-X breakdown/pkg/version.Version=${version}" -o "bin/${name}" "./$cmd"
+    go build -ldflags "-X github.com/jefflunt/breakdown/pkg/version.Version=${version}" -o "bin/${name}" "./$cmd"
 done
 
 echo "Build complete. Binaries are in the bin/ directory."
