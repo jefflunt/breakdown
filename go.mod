@@ -1,4 +1,4 @@
-module github.com/jefflunt/breakdown
+module breakdown
 
 go 1.26.1
 

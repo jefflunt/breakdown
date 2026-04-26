@@ -9,10 +9,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/jefflunt/breakdown/pkg/config"
-	"github.com/jefflunt/breakdown/pkg/logger"
-	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/prompts"
+	 "breakdown/pkg/config"
+	 "breakdown/pkg/logger"
+	breakdown  "breakdown/pkg/breakdown"
+	"breakdown/prompts"
 )
 
 

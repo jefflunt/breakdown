@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/jefflunt/breakdown/pkg/config"
-	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	 "breakdown/pkg/config"
+	breakdown  "breakdown/pkg/breakdown"
 )
 
 type mockTransport struct {
