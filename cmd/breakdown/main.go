@@ -26,8 +26,6 @@ func main() {
 	// Default configuration
 	configFile := config.DefaultPath()
 
-	var planName string
-	flag.StringVar(&planName, "plan", "", "Name of the plan to load or create")
 	var verbose bool
 	flag.BoolVar(&verbose, "v", false, "Enable verbose output")
 	flag.Parse()

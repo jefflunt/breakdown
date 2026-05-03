@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
 	 "github.com/jefflunt/breakdown/pkg/config"
-	 "github.com/jefflunt/breakdown/pkg/logger"
 	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
 	"github.com/jefflunt/breakdown/prompts"
 )
@@ -106,66 +104,4 @@ func (g *GeminiClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest
 	return llmResp, nil
 }
 
-func (c *GeminiClient) GeneratePlanName(ctx context.Context, task string) (string, error) {
-	model := c.client.GenerativeModel(c.model)
-	model.ResponseMIMEType = "application/json"
 
-	prompt, err := prompts.Load("generate_plan_name", map[string]string{
-		"TASK": task,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
-
-	if err != nil {
-		return "", fmt.Errorf("gemini generation failed: %w", err)
-	}
-
-	if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
-		return "", fmt.Errorf("gemini returned an empty response")
-	}
-
-	part := resp.Candidates[0].Content.Parts[0]
-	text, ok := part.(genai.Text)
-	if !ok {
-		return "", fmt.Errorf("expected text response from gemini, got %T", part)
-	}
-
-	var result struct {
-		Filename string `json:"filename"`
-	}
-	if err := json.Unmarshal([]byte(text), &result); err != nil {
-		return "", fmt.Errorf("failed to unmarshal gemini json: %w\nResponse was: %s", err, text)
-	}
-
-	if result.Filename == "" {
-		return "", fmt.Errorf("gemini returned an empty filename")
-	}
-
-	return result.Filename, nil
-}
-
-func (g *GeminiClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
-	prompt, err := prompts.Load("execute_plan", map[string]string{
-		"TASK":           req.Task,
-		"DETAILS":        req.Details,
-		"ASCII_DIAGRAM":  req.AsciiDiagram,
-		"PLAN_STRUCTURE": req.PlanStructure,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	logger.LogMsg(fmt.Sprintf("gemini execution prompt: %s", prompt))
-
-	cmdStr := "gemini"
-	args := []string{prompt}
-	if g.model != "" {
-		args = append(args, "--model", g.model)
-	}
-
-	cmd := exec.CommandContext(ctx, cmdStr, args...)
-	return cmd, nil
-}

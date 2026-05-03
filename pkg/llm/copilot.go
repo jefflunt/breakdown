@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	 "github.com/jefflunt/breakdown/pkg/config"
-	 "github.com/jefflunt/breakdown/pkg/logger"
 	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
 	"github.com/jefflunt/breakdown/prompts"
 )
@@ -104,51 +103,4 @@ func (c *CopilotClient) AnalyzeTask(ctx context.Context, req breakdown.LLMReques
 	return llmResp, nil
 }
 
-func (c *CopilotClient) GeneratePlanName(ctx context.Context, task string) (string, error) {
-	prompt, err := prompts.Load("generate_plan_name", map[string]string{
-		"TASK": task,
-	})
-	if err != nil {
-		return "", err
-	}
 
-	output, err := c.executePrompt(ctx, prompt)
-	if err != nil {
-		return "", err
-	}
-
-	var result struct {
-		Filename string `json:"filename"`
-	}
-	if err := json.Unmarshal([]byte(output), &result); err != nil {
-		return "", fmt.Errorf("failed to unmarshal copilot json: %w\nResponse was: %s", err, output)
-	}
-
-	if result.Filename == "" {
-		return "", fmt.Errorf("copilot returned an empty filename")
-	}
-
-	return result.Filename, nil
-}
-
-func (c *CopilotClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
-	prompt, err := prompts.Load("execute_plan", map[string]string{
-		"TASK":           req.Task,
-		"DETAILS":        req.Details,
-		"ASCII_DIAGRAM":  req.AsciiDiagram,
-		"PLAN_STRUCTURE": req.PlanStructure,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	logger.LogMsg(fmt.Sprintf("copilot execution prompt: %s", prompt))
-
-	args := []string{"-s", "-p", prompt}
-	if c.model != "" {
-		args = append(args, "--model", c.model)
-	}
-
-	cmd := exec.CommandContext(ctx, "copilot", args...)
-	return cmd, nil
-}

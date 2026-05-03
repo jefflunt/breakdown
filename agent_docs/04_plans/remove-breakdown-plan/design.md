@@ -9,15 +9,15 @@
 ## Implementation Backlog
 
 ### Pending
-- `remove-cli-flag.md`: Remove the unused `--plan` flag and its associated variable from `cmd/breakdown/main.go`.
-- `cleanup-prompts.md`: Delete `prompts/generate_plan_name.md` and `prompts/execute_plan.md`, and any leftover state files (e.g. `plans/my-plan.json` and the `plans` directory).
-- `simplify-llmclient-interface.md`: Remove `GeneratePlanName` and `GetExecCommand` signatures from the `LLMClient` interface and `ExecRequest` struct in `pkg/breakdown/node.go`.
-- `cleanup-llm-implementations.md`: Remove the implementations of `GeneratePlanName` and `GetExecCommand` from all LLM providers in `pkg/llm/` (`claude.go`, `copilot.go`, `gemini.go`, `opencode.go`, `factory.go`) along with their respective tests.
-- `cleanup-breakdown-planner.md`: Remove dead tree mutation methods (`EditNode`, `ReplanNode`, `AddChild`, `AddSibling`, `InsertParent`, `DeleteNode`, `SerializePlan`, `GetExecCommand`) from `pkg/breakdown/breakdown.go`, `FormatPlanStructure` from `pkg/breakdown/node.go`, and their corresponding tests in `pkg/breakdown/breakdown_test.go`.
 
 ### Current
 
 ### Completed
+- `cleanup-breakdown-planner.md`: Remove dead tree mutation methods (`EditNode`, `ReplanNode`, `AddChild`, `AddSibling`, `InsertParent`, `DeleteNode`, `SerializePlan`, `GetExecCommand`) from `pkg/breakdown/breakdown.go`, `FormatPlanStructure` from `pkg/breakdown/node.go`, and their corresponding tests in `pkg/breakdown/breakdown_test.go`.
+- `cleanup-llm-implementations.md`: Remove the implementations of `GeneratePlanName` and `GetExecCommand` from all LLM providers in `pkg/llm/` (`claude.go`, `copilot.go`, `gemini.go`, `opencode.go`, `factory.go`) along with their respective tests.
+- `simplify-llmclient-interface.md`: Remove `GeneratePlanName` and `GetExecCommand` signatures from the `LLMClient` interface and `ExecRequest` struct in `pkg/breakdown/node.go`.
+- `cleanup-prompts.md`: Delete `prompts/generate_plan_name.md` and `prompts/execute_plan.md`, and any leftover state files (e.g. `plans/my-plan.json` and the `plans` directory).
+- `remove-cli-flag.md`: Remove the unused `--plan` flag and its associated variable from `cmd/breakdown/main.go`.
 
 ## Architecture Overview
 The core `Planner` struct inside `pkg/breakdown` will be simplified to its essential purpose: orchestrating `Start()` and `Plan()` recursively. By eliminating `ReplanNode`, `AddChild`, etc., the `Planner` becomes fundamentally "run-once" rather than acting as a stateful in-memory tree database for a frontend or REPL. 

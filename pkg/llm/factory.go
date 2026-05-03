@@ -3,7 +3,6 @@ package llm
 import (
 	"context"
 	"fmt"
-	"os/exec"
 
 	 "github.com/jefflunt/breakdown/pkg/config"
 	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
@@ -37,10 +36,4 @@ func (m *MockClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest) 
 	}, nil
 }
 
-func (m *MockClient) GeneratePlanName(ctx context.Context, task string) (string, error) {
-	return "mock-plan-name", nil
-}
 
-func (m *MockClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
-	return exec.Command("echo", "mock execution"), nil
-}

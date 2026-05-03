@@ -8,10 +8,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 
 	 "github.com/jefflunt/breakdown/pkg/config"
-	 "github.com/jefflunt/breakdown/pkg/logger"
 	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
 	"github.com/jefflunt/breakdown/prompts"
 )
@@ -149,54 +147,4 @@ func (c *ClaudeClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest
 	return llmResp, nil
 }
 
-func (c *ClaudeClient) GeneratePlanName(ctx context.Context, task string) (string, error) {
-	prompt, err := prompts.Load("generate_plan_name", map[string]string{
-		"TASK": task,
-	})
-	if err != nil {
-		return "", err
-	}
 
-	output, err := c.callAPI(ctx, prompt)
-	if err != nil {
-		return "", err
-	}
-
-	output = extractJSON(output)
-
-	var result struct {
-		Filename string `json:"filename"`
-	}
-	if err := json.Unmarshal([]byte(output), &result); err != nil {
-		return "", fmt.Errorf("failed to unmarshal claude json: %w\nResponse was: %s", err, output)
-	}
-
-	if result.Filename == "" {
-		return "", fmt.Errorf("claude returned an empty filename")
-	}
-
-	return result.Filename, nil
-}
-
-func (c *ClaudeClient) GetExecCommand(ctx context.Context, req breakdown.ExecRequest) (*exec.Cmd, error) {
-	prompt, err := prompts.Load("execute_plan", map[string]string{
-		"TASK":           req.Task,
-		"DETAILS":        req.Details,
-		"ASCII_DIAGRAM":  req.AsciiDiagram,
-		"PLAN_STRUCTURE": req.PlanStructure,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	logger.LogMsg(fmt.Sprintf("claude execution prompt: %s", prompt))
-
-	cmdStr := "claude"
-	args := []string{prompt}
-	if c.model != "" {
-		args = append(args, "--model", c.model)
-	}
-
-	cmd := exec.CommandContext(ctx, cmdStr, args...)
-	return cmd, nil
-}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"sync"
 	"time"
@@ -62,23 +61,7 @@ func (p *Planner) RUnlock() {
 }
 
 // SerializePlan returns the plan as a string representation.
-func (p *Planner) SerializePlan() string {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return p.serializeNode(p.Root, 0)
-}
 
-func (p *Planner) serializeNode(n *Node, depth int) string {
-	if n == nil {
-		return ""
-	}
-	indent := strings.Repeat("  ", depth)
-	res := fmt.Sprintf("%s- %s [%s]\n", indent, n.Task, n.Status)
-	for _, child := range n.Children {
-		res += p.serializeNode(child, depth+1)
-	}
-	return res
-}
 
 // Start initiates the planning process for a root task
 func (p *Planner) Start(ctx context.Context, task string) error {
@@ -112,232 +95,19 @@ func (p *Planner) analyzeTaskWithRetry(ctx context.Context, req LLMRequest) (LLM
 	return LLMResponse{}, fmt.Errorf("failed after %d retries: %w", p.Config.MaxRetries, lastErr)
 }
 
-func (p *Planner) EditNode(id string, newTask string) (*Node, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.Root == nil {
-		return nil, fmt.Errorf("no active plan")
-	}
-
-	node := p.Root.Find(id)
-	if node == nil {
-		return nil, fmt.Errorf("node not found")
-	}
-
-	node.Task = newTask
-	node.Status = StatusPending
-	node.Type = ""
-	node.Children = nil
-
-	return node, nil
-}
 
 // ReplanNode clears a node's children, resets its status, and saves.
-func (p *Planner) ReplanNode(id string) (*Node, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.Root == nil {
-		return nil, fmt.Errorf("no active plan")
-	}
-
-	node := p.Root.Find(id)
-	if node == nil {
-		return nil, fmt.Errorf("node not found")
-	}
-
-	node.Status = StatusPending
-	node.Type = ""
-	node.Children = nil
-
-	return node, nil
-}
 
 // AddChild adds a new child node to the specified parent.
-func (p *Planner) AddChild(parentID string, task string) (*Node, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.Root == nil {
-		return nil, fmt.Errorf("no active plan")
-	}
-
-	parent := p.Root.Find(parentID)
-	if parent == nil {
-		return nil, fmt.Errorf("parent node not found")
-	}
-
-	parent.Type = TaskTypeComposite
-	parent.Status = StatusComposite
-
-	child := &Node{
-		ID:       uuid.New().String(),
-		ParentID: parent.ID,
-		Task:     task,
-		Status:   StatusPending,
-		Depth:    parent.Depth + 1,
-	}
-
-	parent.Children = append(parent.Children, child)
-
-	return child, nil
-}
 
 // AddSibling adds a new node immediately before or after the specified sibling.
-func (p *Planner) AddSibling(siblingID string, task string, before bool) (*Node, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.Root == nil {
-		return nil, fmt.Errorf("no active plan")
-	}
-
-	if p.Root.ID == siblingID {
-		return nil, fmt.Errorf("cannot add sibling to root node")
-	}
-
-	parent := p.findParent(p.Root, siblingID)
-	if parent == nil {
-		return nil, fmt.Errorf("parent not found for sibling")
-	}
-
-	siblingIdx := -1
-	for i, child := range parent.Children {
-		if child.ID == siblingID {
-			siblingIdx = i
-			break
-		}
-	}
-
-	if siblingIdx == -1 {
-		return nil, fmt.Errorf("sibling not found in parent's children")
-	}
-
-	newNode := &Node{
-		ID:       uuid.New().String(),
-		ParentID: parent.ID,
-		Task:     task,
-		Status:   StatusPending,
-		Depth:    parent.Depth + 1,
-	}
-
-	// Insert before or after siblingIdx
-	newChildren := make([]*Node, 0, len(parent.Children)+1)
-	if before {
-		newChildren = append(newChildren, parent.Children[:siblingIdx]...)
-		newChildren = append(newChildren, newNode)
-		newChildren = append(newChildren, parent.Children[siblingIdx:]...)
-	} else {
-		newChildren = append(newChildren, parent.Children[:siblingIdx+1]...)
-		newChildren = append(newChildren, newNode)
-		newChildren = append(newChildren, parent.Children[siblingIdx+1:]...)
-	}
-	parent.Children = newChildren
-
-	return newNode, nil
-}
 
 // InsertParent inserts a new node directly above the target node.
 // The target node becomes the only child of the new node.
-func (p *Planner) InsertParent(targetID string, task string) (*Node, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.Root == nil {
-		return nil, fmt.Errorf("no active plan")
-	}
-
-	target := p.Root.Find(targetID)
-	if target == nil {
-		return nil, fmt.Errorf("target node not found")
-	}
-
-	newNode := &Node{
-		ID:       uuid.New().String(),
-		Task:     task,
-		Status:   StatusComposite,
-		Type:     TaskTypeComposite,
-		Children: []*Node{target},
-	}
-
-	parent := p.findParent(p.Root, targetID)
-	if parent == nil {
-		// target is root
-		if p.Root.ID != targetID {
-			return nil, fmt.Errorf("internal error: target is not root but has no parent")
-		}
-		newNode.Depth = 0
-		target.ParentID = newNode.ID
-		p.Root = newNode
-	} else {
-		// target is not root
-		newNode.ParentID = parent.ID
-		newNode.Depth = parent.Depth + 1
-
-		// replace target in parent.Children with newNode
-		for i, child := range parent.Children {
-			if child.ID == targetID {
-				parent.Children[i] = newNode
-				break
-			}
-		}
-		target.ParentID = newNode.ID
-	}
-
-	// update depths recursively
-	p.incrementDepth(target)
-
-	return newNode, nil
-}
 
 // DeleteNode removes a node and all its children from the tree.
-func (p *Planner) DeleteNode(id string) error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
 
-	if p.Root == nil {
-		return nil
-	}
 
-	if p.Root.ID == id {
-		p.Root = nil
-		return nil
-	}
-
-	parent := p.findParent(p.Root, id)
-	if parent != nil {
-		for i, child := range parent.Children {
-			if child.ID == id {
-				parent.Children = append(parent.Children[:i], parent.Children[i+1:]...)
-				break
-			}
-		}
-	}
-	return nil
-}
-
-func (p *Planner) incrementDepth(n *Node) {
-	if n == nil {
-		return
-	}
-	n.Depth++
-	for _, child := range n.Children {
-		p.incrementDepth(child)
-	}
-}
-
-func (p *Planner) findParent(current *Node, childID string) *Node {
-	for _, child := range current.Children {
-		if child.ID == childID {
-			return current
-		}
-		if found := p.findParent(child, childID); found != nil {
-			return found
-		}
-	}
-	return nil
-}
 
 // Find finds a node by its ID
 func (p *Planner) Find(id string) *Node {
@@ -531,25 +301,3 @@ func (p *Planner) Plan(ctx context.Context, node *Node) error {
 
 // GetExecCommand gathers the node's context and the overall plan structure,
 // then returns an un-started exec.Cmd that will execute the plan natively.
-func (p *Planner) GetExecCommand(ctx context.Context, nodeID string) (*exec.Cmd, error) {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	if p.Root == nil {
-		return nil, fmt.Errorf("no active plan")
-	}
-
-	node := p.Root.Find(nodeID)
-	if node == nil {
-		return nil, fmt.Errorf("node not found")
-	}
-
-	req := ExecRequest{
-		Task:          node.Task,
-		Details:       node.Details,
-		AsciiDiagram:  node.AsciiDiagram,
-		PlanStructure: p.Root.FormatPlanStructure(0),
-	}
-
-	return p.LLM.GetExecCommand(ctx, req)
-}
