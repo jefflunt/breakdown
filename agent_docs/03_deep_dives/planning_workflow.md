@@ -6,9 +6,13 @@ The core mechanic of **breakdown** is its recursive interaction loop, defined in
 
 Unlike execution-focused agents that try to *do* the work immediately, this project strictly focuses on decomposition until a specific actionable threshold is met.
 
-**The Actionable Heuristic:** A leaf node is actionable *if and only if* it describes the creation, deletion, or editing of a single file on disk. 
-- Example: "Refactor the authentication module" -> *Not Actionable* (Multiple files, too vague)
-- Example: "Rename `AuthUser` to `SessionUser` in `src/auth/models.go`" -> *Actionable* (Single file operation)
+**The Actionable Heuristic:** A leaf node is actionable *if and only if* it describes a cohesive "Logical Unit of Work" (LUoW) that can be implemented as a functional slice.
+- Example: "Build the entire frontend application" -> *Not Actionable* (Too vague, requires decomposition)
+- Example: "Add CreateUser method to user_repo.go" -> *Not Actionable* (Too granular, disjointed from the rest of the feature)
+- Example: "Implement the Create User API endpoint (including route, handler, and db query)" -> *Actionable* (Complete LUoW)
+
+**Test-Last Execution:** 
+The orchestrator avoids creating explicit testing tasks. It assumes that a downstream pipeline (like `build`) handles testing sequentially (`Dev -> Tester`). Breakdown focuses purely on planning the *implementation* slice.
 
 This ensures that the resulting plan can be executed with extreme predictability.
 
@@ -23,7 +27,7 @@ When `p.Plan(ctx, rootNode)` is called, the orchestrator begins a recursive loop
 
 2. **Handle the LLM Response**:
 
-   - **`ActionActionable`**: The LLM determines this is a single file operation. The node's status is set to `actionable`, and this branch terminates successfully.
+   - **`ActionActionable`**: The LLM determines this is a cohesive Logical Unit of Work. The node's status is set to `actionable`, and this branch terminates successfully.
    
    - **`ActionDecompose`**: The LLM determines the task is too broad. The node's status is set to `composite`, and it generates `N` subtasks. The breakdown creates child `Node`s for each subtask and recursively calls `Plan()` on each child.
    

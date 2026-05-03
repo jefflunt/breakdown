@@ -1,6 +1,6 @@
 # breakdown — Agent Documentation Index
 
-**breakdown** is a non-interactive recursive task orchestrator written in Go. It accepts a high-level task description, recursively breaks it down iteratively using an LLM, and guarantees that the resulting leaf nodes represent *single-file operations* by recursively polling the LLM for decomposition until every branch reaches an actionable state.
+**breakdown** is a non-interactive recursive task orchestrator written in Go. It accepts a high-level task description, recursively breaks it down iteratively using an LLM, and guarantees that the resulting leaf nodes represent *Logical Units of Work (LUoW)* by recursively polling the LLM for decomposition until every branch reaches an actionable state.
 
 Unlike previous versions, `breakdown` is non-interactive: it generates the plan structure as a directory/file hierarchy on your local filesystem, where leaf nodes are actionable Markdown files.
 
@@ -64,7 +64,8 @@ breakdown/
 ## Key Facts
 
 - **Non-Interactive:** Once invoked, `breakdown` proceeds to generate the full filesystem hierarchy without further user input.
-- **Actionable Heuristic:** A leaf node is *only* actionable if it describes the creation, deletion, or editing of a single file on disk. The LLM must enforce this.
+- **Actionable Heuristic:** A leaf node is *only* actionable if it describes a cohesive "Logical Unit of Work" (LUoW) that can be implemented as a functional slice, spanning one or multiple files. The LLM must enforce this.
+- **Test-Last Pipeline Synergy:** `breakdown` is designed to work with the `build` orchestrator's `Dev -> Tester` pipeline. It explicitly avoids generating testing tasks, allowing the downstream `Tester` agent to handle QA natively.
 - **No Max Depth:** The breakdown does not rely on arbitrary depth limits. It continues to decompose infinitely until the LLM returns `Actionable` for all branches.
 - **Filesystem Output:** The final plan is generated as a directory/file hierarchy in the directory specified by `output_folder` (default `./breakdown-output`).
 - **Atlassian Integration:** If configured, the breakdown automatically fetches content from Jira or Confluence URLs found in tasks or details, providing the LLM with direct access to your issue tracking and documentation.
