@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	 "github.com/jefflunt/breakdown/pkg/llm"
-	 "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/agent_docs"
+	"github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
+	"github.com/jefflunt/breakdown/pkg/llm"
 	"github.com/jefflunt/breakdown/pkg/version"
 )
 
@@ -21,11 +23,6 @@ func isGitRepo() bool {
 }
 
 func main() {
-	if !isGitRepo() {
-		fmt.Println("Error: breakdown must be run from inside a Git repository. This ensures accurate codebase context via .gitignore.")
-		os.Exit(1)
-	}
-
 	// Default configuration
 	configFile := config.DefaultPath()
 
@@ -44,12 +41,20 @@ func main() {
 		case "help":
 			flag.Usage()
 			os.Exit(0)
+		case "install":
+			installAgent()
+			os.Exit(0)
 		}
+	}
+
+	if !isGitRepo() {
+		fmt.Println("Error: breakdown must be run from inside a Git repository. This ensures accurate codebase context via .gitignore.")
+		os.Exit(1)
 	}
 
 	// Task execution logic
 	var initialTask string
-	
+
 	if flag.NArg() < 2 {
 		fmt.Println("Error: Missing arguments. Usage: breakdown <path-to-prompt-file> <output-folder>")
 		os.Exit(1)
@@ -63,7 +68,7 @@ func main() {
 		fmt.Printf("Error reading prompt file '%s': %v\n", promptFilePath, err)
 		os.Exit(1)
 	}
-	
+
 	initialTask = strings.TrimSpace(string(data))
 
 	if initialTask == "" {
@@ -95,7 +100,7 @@ func main() {
 			fmt.Printf("Error: Path '%s' exists and is not a directory.\n", outputFolder)
 			os.Exit(1)
 		}
-		
+
 		fmt.Printf("Output directory '%s' already exists. Overwrite? [y/N]: ", outputFolder)
 		var response string
 		fmt.Scanln(&response)
@@ -129,4 +134,37 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("Done. Breakdown output available in %s.\n", outputFolder)
+}
+
+func installAgent() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("Error getting home directory: %v\n", err)
+		os.Exit(1)
+	}
+
+	targetDir := filepath.Join(home, ".config", "opencode", "agents")
+	targetFile := filepath.Join(targetDir, "breakdown-design-and-build.md")
+
+	if err := os.MkdirAll(targetDir, 0755); err != nil {
+		fmt.Printf("Error creating agents directory: %v\n", err)
+		os.Exit(1)
+	}
+
+	if _, err := os.Stat(targetFile); err == nil {
+		fmt.Printf("Agent file '%s' already exists. Overwrite? [y/N]: ", targetFile)
+		var response string
+		fmt.Scanln(&response)
+		if strings.ToLower(response) != "y" {
+			fmt.Println("Installation cancelled.")
+			os.Exit(0)
+		}
+	}
+
+	if err := os.WriteFile(targetFile, agent_docs.BreakdownDesignAndBuildAgent, 0644); err != nil {
+		fmt.Printf("Error writing agent file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Successfully installed agent to %s\n", targetFile)
 }

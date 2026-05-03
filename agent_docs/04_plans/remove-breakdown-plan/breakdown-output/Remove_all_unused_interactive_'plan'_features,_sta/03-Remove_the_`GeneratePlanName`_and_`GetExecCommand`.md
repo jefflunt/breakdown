@@ -1,0 +1,3 @@
+# Remove the `GeneratePlanName` and `GetExecCommand` signatures from the `LLMClient` interface, delete the `ExecRequest` struct, and strip their corresponding implementations from all LLM providers in `pkg/llm/`.
+
+This task involves cleaning up the `pkg/llm/` package by removing the legacy `GeneratePlanName` and `GetExecCommand` method signatures from the `LLMClient` interface. The `ExecRequest` struct should also be removed. Furthermore, all implementations of these methods must be completely stripped out from `claude.go`, `copilot.go`, `gemini.go`, `opencode.go`, and any other LLM provider implementations to complete the refactor and prevent compilation errors.

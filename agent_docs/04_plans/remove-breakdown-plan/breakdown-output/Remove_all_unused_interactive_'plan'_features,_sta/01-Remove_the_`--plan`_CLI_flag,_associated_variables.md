@@ -1,0 +1,3 @@
+# Remove the `--plan` CLI flag, associated variables, and immediate parsing/validation logic from `cmd/breakdown/main.go` to prevent the application from accepting deprecated interactive planning arguments.
+
+This task involves modifying the CLI entrypoint (`cmd/breakdown/main.go`) to strip out the `--plan` flag. This includes removing the variable declarations used to store the flag's value, the `flag` (or similar CLI library) definitions, and any immediate branching or validation logic within `main.go` that relies on the presence of the `--plan` flag. By doing this, the application will no longer expose the deprecated interactive plan functionality to the end user.
