@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -15,12 +14,6 @@ import (
 	"github.com/jefflunt/breakdown/pkg/llm"
 	"github.com/jefflunt/breakdown/pkg/version"
 )
-
-func isGitRepo() bool {
-	cmd := exec.Command("git", "status")
-	err := cmd.Run()
-	return err == nil
-}
 
 func main() {
 	// Default configuration
@@ -43,11 +36,6 @@ func main() {
 			installAgent()
 			os.Exit(0)
 		}
-	}
-
-	if !isGitRepo() {
-		fmt.Println("Error: breakdown must be run from inside a Git repository. This ensures accurate codebase context via .gitignore.")
-		os.Exit(1)
 	}
 
 	// Task execution logic
