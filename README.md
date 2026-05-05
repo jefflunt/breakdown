@@ -6,9 +6,17 @@ Leaf nodes in this hierarchy are individual Markdown files, each describing a sp
 
 ## Getting Started
 
-### Installation
+### Installation (For Users)
 
-`breakdown` relies on a standard Go workspace. To build and install:
+If you just want to use the tool and don't plan on developing it, you can install a pre-built binary directly using cURL:
+
+```bash
+curl -sL https://raw.githubusercontent.com/jefflunt/breakdown/main/script/curl-install.sh | bash -s latest
+```
+
+### Installation (For Developers)
+
+If you want to contribute to `breakdown` or build it from source, it relies on a standard Go workspace. To build and install:
 
 ```bash
 # Clone the repository and navigate to the root
@@ -17,15 +25,6 @@ cd breakdown
 # Build, test, and install
 ./script/build-test-install
 ```
-
-### Installation (Curl)
-You can also install the latest pre-built binary directly:
-
-```bash
-curl -sL https://raw.githubusercontent.com/jefflunt/breakdown/main/script/curl-install.sh | bash -s <tag>
-```
-
-Replace `<tag>` with the desired release tag (e.g., `b1`).
 
 ### Configuration
 

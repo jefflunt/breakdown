@@ -21,8 +21,24 @@ elif [ "$OS" == "mingw64_nt" ] || [ "$OS" == "msys_nt" ]; then
 fi
 
 # We need a tag
-if [ -z "$1" ]; then
-    echo "Usage: curl -sL https://raw.githubusercontent.com/jefflunt/breakdown/main/script/curl-install.sh | bash -s <tag>"
+TAG=$1
+
+if [ -z "$TAG" ] || [ "$TAG" == "latest" ]; then
+    echo "Fetching latest release tag..."
+    TAG=$(curl -sL https://api.github.com/repos/jefflunt/breakdown/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    
+    if [ -z "$TAG" ]; then
+        echo "Error: Could not determine the latest release tag."
+        exit 1
+    fi
+    echo "Latest release is $TAG"
+fi
+
+BINARY_NAME="breakdown-${OS}-${ARCH}"
+if [ "$OS" == "windows" ]; then
+    BINARY_NAME="${BINARY_NAME}.exe"
+fi
+
 URL="https://github.com/jefflunt/breakdown/releases/download/${TAG}/${BINARY_NAME}"
 
 
