@@ -94,3 +94,60 @@ func TestConfigLoadFromEnv(t *testing.T) {
 		t.Errorf("Expected AgentAdapter to be loaded from environment, got %q", cfg.AgentAdapter)
 	}
 }
+
+func TestConfigLoadWithLegacyLLMFields(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "config-test-legacy")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	configContent := `
+agent_adapter: "copilot:anthropic/claude-3-5-sonnet"
+llm:
+  provider: "gemini"
+  model: "gemini-1.5-pro"
+  api_key: "some-api-key"
+`
+	configPath := filepath.Join(tempDir, "config.yml")
+	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+		t.Fatalf("Failed to write test config file: %v", err)
+	}
+
+	cfg, err := LoadConfig(configPath)
+	if err != nil {
+		t.Fatalf("LoadConfig failed with legacy fields: %v", err)
+	}
+
+	if cfg.AgentAdapter != "copilot:anthropic/claude-3-5-sonnet" {
+		t.Errorf("Expected AgentAdapter 'copilot:anthropic/claude-3-5-sonnet', got %s", cfg.AgentAdapter)
+	}
+}
+
+func TestConfigLoadWithEmptyAdapter(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "config-test-empty-adapter")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	configContent := `
+agent_adapter: ""
+`
+	configPath := filepath.Join(tempDir, "config.yml")
+	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+		t.Fatalf("Failed to write test config file: %v", err)
+	}
+
+	// Make sure env is clear to test pure default fallback
+	t.Setenv("BREAKDOWN_AGENT_ADAPTER", "")
+
+	cfg, err := LoadConfig(configPath)
+	if err != nil {
+		t.Fatalf("LoadConfig failed: %v", err)
+	}
+
+	if cfg.AgentAdapter != "gemini:google/gemini-3.1-flash-lite-preview" {
+		t.Errorf("Expected fallback default AgentAdapter gemini:google/gemini-3.1-flash-lite-preview, got %s", cfg.AgentAdapter)
+	}
+}
