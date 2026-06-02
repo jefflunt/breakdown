@@ -73,7 +73,7 @@ func main() {
 	ctx := context.Background()
 
 	// Instantiate the LLM based on the loaded config
-	client, err := llm.NewClient(ctx, cfg)
+	client, err := llm.NewClient(ctx, cfg.AgentAdapter)
 	if err != nil {
 		fmt.Printf("Failed to initialize LLM client: %v\n", err)
 		os.Exit(1)
@@ -105,8 +105,9 @@ func main() {
 	}
 
 	p := breakdown.NewPlanner(breakdown.Config{
-		Workspace: "./workspace",
-		Verbose:   verbose,
+		Workspace:    "./workspace",
+		Verbose:      verbose,
+		AgentAdapter: cfg.AgentAdapter,
 	}, client)
 
 	if err := p.Start(ctx, initialTask); err != nil {

@@ -10,7 +10,6 @@ import (
 	"os"
 
 	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/prompts"
 )
 
@@ -20,17 +19,13 @@ type ClaudeClient struct {
 	client *http.Client
 }
 
-func NewClaudeClient(ctx context.Context, cfg *config.Config) (*ClaudeClient, error) {
-	apiKey := cfg.LLM.APIKey
-	if apiKey == "" {
-		apiKey = os.Getenv("ANTHROPIC_API_KEY")
-	}
+func NewClaudeClient(ctx context.Context, model string) (*ClaudeClient, error) {
+	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 
 	if apiKey == "" {
-		return nil, fmt.Errorf("anthropic api key is required in config or via ANTHROPIC_API_KEY environment variable")
+		return nil, fmt.Errorf("anthropic api key is required via ANTHROPIC_API_KEY environment variable")
 	}
 
-	model := cfg.LLM.Model
 	if model == "" {
 		model = "claude-3-5-sonnet-latest" // Sensible default
 	}

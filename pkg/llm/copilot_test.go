@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/pkg/config"
 )
 
 func TestCopilotClient_AnalyzeTask(t *testing.T) {
@@ -15,10 +14,7 @@ func TestCopilotClient_AnalyzeTask(t *testing.T) {
 		t.Skip("copilot CLI not found in PATH; skipping test")
 	}
 
-	cfg := &config.Config{}
-	cfg.LLM.Provider = "copilot"
-
-	client, err := NewCopilotClient(context.Background(), cfg)
+	client, err := NewCopilotClient(context.Background(), "some-model")
 	if err != nil {
 		t.Fatalf("expected no error creating client, got: %v", err)
 	}

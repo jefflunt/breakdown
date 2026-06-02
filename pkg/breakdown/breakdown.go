@@ -20,6 +20,7 @@ type Config struct {
 	MaxConcurrency int
 	MaxRetries     int
 	Verbose        bool
+	AgentAdapter   string
 	Atlassian      struct {
 		BaseURL string
 		User    string

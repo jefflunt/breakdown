@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/prompts"
 )
 
@@ -18,13 +17,12 @@ type CopilotClient struct {
 	runner func(ctx context.Context, name string, args ...string) ([]byte, []byte, error)
 }
 
-func NewCopilotClient(ctx context.Context, cfg *config.Config) (*CopilotClient, error) {
+func NewCopilotClient(ctx context.Context, model string) (*CopilotClient, error) {
 	// Verify that the copilot executable is available
 	if _, err := exec.LookPath("copilot"); err != nil {
 		return nil, fmt.Errorf("copilot command line interface not found in PATH: %w", err)
 	}
 
-	model := cfg.LLM.Model
 	// If no model is specified, we can leave it empty to let the CLI choose the default
 
 	return &CopilotClient{

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/pkg/config"
 )
 
 type mockTransport struct {
@@ -20,11 +19,9 @@ func (m *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func TestClaudeClient_AnalyzeTask(t *testing.T) {
-	cfg := &config.Config{}
-	cfg.LLM.Provider = "claude"
-	cfg.LLM.APIKey = "test-key"
+	t.Setenv("ANTHROPIC_API_KEY", "test-key")
 
-	client, err := NewClaudeClient(context.Background(), cfg)
+	client, err := NewClaudeClient(context.Background(), "claude-3-5-sonnet-latest")
 	if err != nil {
 		t.Fatalf("expected no error creating client, got: %v", err)
 	}

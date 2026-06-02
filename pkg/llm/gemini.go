@@ -10,7 +10,6 @@ import (
 	"google.golang.org/api/option"
 
 	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/prompts"
 )
 
@@ -19,14 +18,11 @@ type GeminiClient struct {
 	model  string
 }
 
-func NewGeminiClient(ctx context.Context, cfg *config.Config) (*GeminiClient, error) {
-	apiKey := cfg.LLM.APIKey
-	if apiKey == "" {
-		apiKey = os.Getenv("GEMINI_API_KEY")
-	}
+func NewGeminiClient(ctx context.Context, model string) (*GeminiClient, error) {
+	apiKey := os.Getenv("GEMINI_API_KEY")
 
 	if apiKey == "" {
-		return nil, fmt.Errorf("gemini api key is required in config or via GEMINI_API_KEY environment variable")
+		return nil, fmt.Errorf("gemini api key is required via GEMINI_API_KEY environment variable")
 	}
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
@@ -34,7 +30,6 @@ func NewGeminiClient(ctx context.Context, cfg *config.Config) (*GeminiClient, er
 		return nil, fmt.Errorf("failed to create gemini client: %w", err)
 	}
 
-	model := cfg.LLM.Model
 	if model == "" {
 		model = "gemini-3.1-flash-lite-preview"
 	}

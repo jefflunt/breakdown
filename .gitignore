@@ -38,13 +38,21 @@ Desktop.ini
 
 # Ephemeral auto-generated files, logs, and profiles
 tmp/
+temp/
 log/
+.cache/
 *.log
 *.prof
 *.pprof
 *.mprof
 *.cpu
 *.mem
+
+# Test caches and throwaway test data
+coverage.txt
+coverage.html
+.pytest_cache/
+.nyc_output/
 
 # Editor/IDE temporary files
 *.swp

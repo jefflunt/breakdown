@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
-	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/pkg/logger"
 	"github.com/jefflunt/breakdown/prompts"
 )
@@ -27,13 +26,12 @@ type OpencodeClient struct {
 	runner func(ctx context.Context, name string, args ...string) ([]byte, []byte, error)
 }
 
-func NewOpencodeClient(ctx context.Context, cfg *config.Config) (*OpencodeClient, error) {
+func NewOpencodeClient(ctx context.Context, model string) (*OpencodeClient, error) {
 	// Verify that the opencode executable is available
 	if _, err := exec.LookPath("opencode"); err != nil {
 		return nil, fmt.Errorf("opencode command line interface not found in PATH: %w", err)
 	}
 
-	model := cfg.LLM.Model
 	// If no model is specified, we can leave it empty to let the CLI choose the default
 
 	return &OpencodeClient{
