@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
 )
 
 // NewClient returns a configured LLMClient based on the config provider.
@@ -35,5 +35,3 @@ func (m *MockClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest) 
 		Action: breakdown.ActionActionable,
 	}, nil
 }
-
-

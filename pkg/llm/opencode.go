@@ -9,12 +9,11 @@ import (
 	"os/exec"
 	"strings"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	 "github.com/jefflunt/breakdown/pkg/logger"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
+	"github.com/jefflunt/breakdown/pkg/logger"
 	"github.com/jefflunt/breakdown/prompts"
 )
-
 
 type opencodeEvent struct {
 	Type string `json:"type"`
@@ -123,5 +122,3 @@ func (c *OpencodeClient) AnalyzeTask(ctx context.Context, req breakdown.LLMReque
 
 	return llmResp, nil
 }
-
-

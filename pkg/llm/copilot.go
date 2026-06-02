@@ -8,8 +8,8 @@ import (
 	"os/exec"
 	"strings"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/prompts"
 )
 
@@ -102,5 +102,3 @@ func (c *CopilotClient) AnalyzeTask(ctx context.Context, req breakdown.LLMReques
 
 	return llmResp, nil
 }
-
-

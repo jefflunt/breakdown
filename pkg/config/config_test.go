@@ -55,10 +55,7 @@ func TestConfigLoadValidFile(t *testing.T) {
 
 	configContent := `
 plans_dir: "~/custom/plans"
-llm:
-  provider: mock
-  model: some-model
-  api_key: secret
+agent_adapter: "mock:mock-provider/some-model"
 `
 	configPath := filepath.Join(tempDir, "config.yml")
 	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {

@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"testing"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
 )
 
 func TestCopilotClient_AnalyzeTask(t *testing.T) {
@@ -40,4 +40,3 @@ func TestCopilotClient_AnalyzeTask(t *testing.T) {
 		t.Fatalf("expected actionable, got %v", resp.Action)
 	}
 }
-

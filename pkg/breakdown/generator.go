@@ -15,11 +15,11 @@ func (n *Node) GenerateFilesystemStructure(baseDir string) error {
 func (n *Node) generateWithIndex(baseDir string, index int) error {
 	// Sanitize task title for use as a filename/directory name
 	safeName := sanitizeFilename(n.Task)
-	
+
 	if index >= 0 {
 		safeName = fmt.Sprintf("%02d-%s", index+1, safeName)
 	}
-	
+
 	var currentPath string
 	if n.Type == TaskTypeComposite {
 		// Create a directory for composite tasks

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jefflunt/breakdown/pkg/atlassian"
+	"github.com/jefflunt/breakdown/pkg/logger"
 	"golang.org/x/sync/errgroup"
-	 "github.com/jefflunt/breakdown/pkg/atlassian"
-	 "github.com/jefflunt/breakdown/pkg/logger"
 )
 
 // Config represents the planner configuration
@@ -30,10 +30,10 @@ type Config struct {
 // Planner is the central orchestrator for the task tree
 type Planner struct {
 	mu           sync.RWMutex
-	Root         *Node           `json:"root"`
-	Config       Config          `json:"config"`
-	LLM          LLMClient       `json:"-"`
-	llmSemaphore chan struct{}   `json:"-"`
+	Root         *Node         `json:"root"`
+	Config       Config        `json:"config"`
+	LLM          LLMClient     `json:"-"`
+	llmSemaphore chan struct{} `json:"-"`
 }
 
 // NewPlanner creates a new planner instance
@@ -61,7 +61,6 @@ func (p *Planner) RUnlock() {
 }
 
 // SerializePlan returns the plan as a string representation.
-
 
 // Start initiates the planning process for a root task
 func (p *Planner) Start(ctx context.Context, task string) error {
@@ -95,7 +94,6 @@ func (p *Planner) analyzeTaskWithRetry(ctx context.Context, req LLMRequest) (LLM
 	return LLMResponse{}, fmt.Errorf("failed after %d retries: %w", p.Config.MaxRetries, lastErr)
 }
 
-
 // ReplanNode clears a node's children, resets its status, and saves.
 
 // AddChild adds a new child node to the specified parent.
@@ -106,8 +104,6 @@ func (p *Planner) analyzeTaskWithRetry(ctx context.Context, req LLMRequest) (LLM
 // The target node becomes the only child of the new node.
 
 // DeleteNode removes a node and all its children from the tree.
-
-
 
 // Find finds a node by its ID
 func (p *Planner) Find(id string) *Node {

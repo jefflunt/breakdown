@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
 )
 
 type mockTransport struct {
@@ -63,5 +63,3 @@ func TestClaudeClient_AnalyzeTask(t *testing.T) {
 		t.Fatalf("expected actionable, got %v", resp.Action)
 	}
 }
-
-

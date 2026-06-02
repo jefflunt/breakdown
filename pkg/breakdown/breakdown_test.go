@@ -21,10 +21,6 @@ func (m *simpleMockClient) AnalyzeTask(ctx context.Context, req LLMRequest) (LLM
 	return LLMResponse{}, fmt.Errorf("unexpected task: %s", req.Task)
 }
 
-
-
-
-
 func TestPlannerStart(t *testing.T) {
 	cfg := Config{}
 
@@ -63,8 +59,7 @@ func TestPlannerPlanDecomposition(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	
-	cfg := Config{ }
+	cfg := Config{}
 
 	client := &simpleMockClient{
 		responses: map[string]LLMResponse{
@@ -101,8 +96,7 @@ func TestPlannerPlanAskUser(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	
-	cfg := Config{ }
+	cfg := Config{}
 
 	client := &simpleMockClient{
 		responses: map[string]LLMResponse{
@@ -141,11 +135,3 @@ func TestPlannerPlanAskUser(t *testing.T) {
 		t.Errorf("Expected status to be actionable, got %s", p.Root.Status)
 	}
 }
-
-
-
-
-
-
-
-

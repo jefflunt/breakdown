@@ -9,8 +9,8 @@ import (
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/prompts"
 )
 
@@ -103,5 +103,3 @@ func (g *GeminiClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest
 
 	return llmResp, nil
 }
-
-

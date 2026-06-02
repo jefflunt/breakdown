@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	 "github.com/jefflunt/breakdown/pkg/config"
-	breakdown  "github.com/jefflunt/breakdown/pkg/breakdown"
+	breakdown "github.com/jefflunt/breakdown/pkg/breakdown"
+	"github.com/jefflunt/breakdown/pkg/config"
 	"github.com/jefflunt/breakdown/prompts"
 )
 
@@ -146,5 +146,3 @@ func (c *ClaudeClient) AnalyzeTask(ctx context.Context, req breakdown.LLMRequest
 
 	return llmResp, nil
 }
-
-

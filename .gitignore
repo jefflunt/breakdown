@@ -24,3 +24,15 @@ go.work
 /workspace/
 /breakdown-output/
 /breakdown
+
+# File system metadata
+.DS_Store
+
+# Ephemeral auto-generated files and logs
+tmp/
+log/
+*.log
+
+# Databases and database dumps
+*.sqlite
+*.db
