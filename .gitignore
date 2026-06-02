@@ -12,6 +12,7 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+*.coverprofile
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
@@ -27,12 +28,33 @@ go.work
 
 # File system metadata
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
 
-# Ephemeral auto-generated files and logs
+# Ephemeral auto-generated files, logs, and profiles
 tmp/
 log/
 *.log
+*.prof
+*.pprof
+*.mprof
+*.cpu
+*.mem
+
+# Editor/IDE temporary files
+*.swp
+*.swo
+*~
 
 # Databases and database dumps
 *.sqlite
+*.sqlite3
 *.db
+*.db-journal
+*.db-shm
+*.db-wal
