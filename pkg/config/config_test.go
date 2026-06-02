@@ -71,7 +71,7 @@ agent_adapter: "mock:mock-provider/some-model"
 
 func TestConfigLoadFromEnv(t *testing.T) {
 	t.Setenv("BREAKDOWN_AGENT_ADAPTER", "custom-cli:custom-provider/custom-model")
-	
+
 	tempDir, err := os.MkdirTemp("", "config-test-env")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
@@ -149,5 +149,100 @@ agent_adapter: ""
 
 	if cfg.AgentAdapter != "gemini:google/gemini-3.1-flash-lite-preview" {
 		t.Errorf("Expected fallback default AgentAdapter gemini:google/gemini-3.1-flash-lite-preview, got %s", cfg.AgentAdapter)
+	}
+}
+
+func TestParseAdapter(t *testing.T) {
+	tests := []struct {
+		name             string
+		input            string
+		expectedCliName  string
+		expectedProvider string
+		expectedModel    string
+		expectErr        bool
+	}{
+		{
+			name:             "valid copilot",
+			input:            "copilot:anthropic/claude-haiku-4.5",
+			expectedCliName:  "copilot",
+			expectedProvider: "anthropic",
+			expectedModel:    "claude-haiku-4.5",
+			expectErr:        false,
+		},
+		{
+			name:             "valid opencode",
+			input:            "opencode:google/gemini-3.5-flash",
+			expectedCliName:  "opencode",
+			expectedProvider: "google",
+			expectedModel:    "gemini-3.5-flash",
+			expectErr:        false,
+		},
+		{
+			name:             "valid with spaces and trimming",
+			input:            "  gemini : google / gemini-3.1-flash-lite-preview  ",
+			expectedCliName:  "gemini",
+			expectedProvider: "google",
+			expectedModel:    "gemini-3.1-flash-lite-preview",
+			expectErr:        false,
+		},
+		{
+			name:      "empty input",
+			input:     "",
+			expectErr: true,
+		},
+		{
+			name:      "missing colon",
+			input:     "copilot",
+			expectErr: true,
+		},
+		{
+			name:      "missing slash",
+			input:     "copilot:anthropic-claude",
+			expectErr: true,
+		},
+		{
+			name:      "empty components",
+			input:     " : / ",
+			expectErr: true,
+		},
+		{
+			name:      "empty cli",
+			input:     ":anthropic/claude-haiku",
+			expectErr: true,
+		},
+		{
+			name:      "empty provider",
+			input:     "copilot:/claude-haiku",
+			expectErr: true,
+		},
+		{
+			name:      "empty model",
+			input:     "copilot:anthropic/",
+			expectErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			cliName, provider, model, err := ParseAdapter(tc.input)
+			if tc.expectErr {
+				if err == nil {
+					t.Errorf("expected error for input %q, got nil", tc.input)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("unexpected error for input %q: %v", tc.input, err)
+				}
+				if cliName != tc.expectedCliName {
+					t.Errorf("expected cliName %q, got %q", tc.expectedCliName, cliName)
+				}
+				if provider != tc.expectedProvider {
+					t.Errorf("expected provider %q, got %q", tc.expectedProvider, provider)
+				}
+				if model != tc.expectedModel {
+					t.Errorf("expected model %q, got %q", tc.expectedModel, model)
+				}
+			}
+		})
 	}
 }

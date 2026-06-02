@@ -20,26 +20,26 @@ func TestParseAgentAdapter(t *testing.T) {
 			name:             "valid copilot format",
 			input:            "copilot:anthropic/claude-haiku-4.5",
 			expectedProvider: "copilot",
-			expectedModel:    "anthropic/claude-haiku-4.5",
+			expectedModel:    "claude-haiku-4.5",
 			expectErr:        false,
 		},
 		{
 			name:             "valid opencode format",
-			input:            "opencode:gemini-2.5-pro",
+			input:            "opencode:google/gemini-2.5-pro",
 			expectedProvider: "opencode",
-			expectedModel:    "gemini-2.5-pro",
+			expectedModel:    "google/gemini-2.5-pro",
 			expectErr:        false,
 		},
 		{
 			name:             "valid mock format",
-			input:            "mock:anything",
+			input:            "mock:mock-provider/anything",
 			expectedProvider: "mock",
 			expectedModel:    "anything",
 			expectErr:        false,
 		},
 		{
 			name:             "valid gemini format",
-			input:            "gemini:model-name",
+			input:            "gemini:google/model-name",
 			expectedProvider: "gemini",
 			expectedModel:    "model-name",
 			expectErr:        false,
@@ -48,7 +48,7 @@ func TestParseAgentAdapter(t *testing.T) {
 			name:             "valid with spaces",
 			input:            "  copilot  :  anthropic/claude-haiku-4.5  ",
 			expectedProvider: "copilot",
-			expectedModel:    "anthropic/claude-haiku-4.5",
+			expectedModel:    "claude-haiku-4.5",
 			expectErr:        false,
 		},
 		{
@@ -62,18 +62,23 @@ func TestParseAgentAdapter(t *testing.T) {
 			expectErr: true,
 		},
 		{
+			name:      "missing slash",
+			input:     "copilot:anthropic-claude",
+			expectErr: true,
+		},
+		{
 			name:      "empty model name",
-			input:     "copilot:",
+			input:     "copilot:anthropic/",
 			expectErr: true,
 		},
 		{
 			name:      "empty provider name",
-			input:     ":model",
+			input:     "copilot:/claude",
 			expectErr: true,
 		},
 		{
 			name:      "empty provider and model",
-			input:     ":",
+			input:     "copilot:/",
 			expectErr: true,
 		},
 	}
@@ -105,7 +110,7 @@ func TestNewClient(t *testing.T) {
 
 	// 1. Mock provider
 	t.Run("mock client", func(t *testing.T) {
-		client, err := NewClient(ctx, "mock:some-model")
+		client, err := NewClient(ctx, "mock:mock-provider/some-model")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -116,7 +121,7 @@ func TestNewClient(t *testing.T) {
 
 	// 2. Unknown provider
 	t.Run("unknown client", func(t *testing.T) {
-		_, err := NewClient(ctx, "unknown:model")
+		_, err := NewClient(ctx, "unknown:provider/model")
 		if err == nil {
 			t.Fatal("expected error for unknown provider, got nil")
 		}
@@ -134,7 +139,7 @@ func TestNewClient(t *testing.T) {
 			defer os.Setenv("ANTHROPIC_API_KEY", origKey)
 		}
 
-		_, err := NewClient(ctx, "claude:claude-3-5-sonnet")
+		_, err := NewClient(ctx, "claude:anthropic/claude-3-5-sonnet")
 		if err == nil {
 			t.Fatal("expected error without ANTHROPIC_API_KEY, got nil")
 		}
@@ -155,7 +160,7 @@ func TestNewClient(t *testing.T) {
 			}
 		}()
 
-		client, err := NewClient(ctx, "claude:claude-3-5-sonnet")
+		client, err := NewClient(ctx, "claude:anthropic/claude-3-5-sonnet")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -172,7 +177,7 @@ func TestNewClient(t *testing.T) {
 			defer os.Setenv("GEMINI_API_KEY", origKey)
 		}
 
-		_, err := NewClient(ctx, "gemini:gemini-1.5-pro")
+		_, err := NewClient(ctx, "gemini:google/gemini-1.5-pro")
 		if err == nil {
 			t.Fatal("expected error without GEMINI_API_KEY, got nil")
 		}
@@ -193,7 +198,7 @@ func TestNewClient(t *testing.T) {
 			}
 		}()
 
-		client, err := NewClient(ctx, "gemini:gemini-1.5-pro")
+		client, err := NewClient(ctx, "gemini:google/gemini-1.5-pro")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -206,7 +211,7 @@ func TestNewClient(t *testing.T) {
 	t.Run("copilot client", func(t *testing.T) {
 		_, lookupErr := exec.LookPath("copilot")
 
-		client, err := NewClient(ctx, "copilot:some-model")
+		client, err := NewClient(ctx, "copilot:provider/some-model")
 		if lookupErr != nil {
 			if err == nil {
 				t.Fatal("expected error because copilot CLI is not in PATH, got nil")
@@ -228,7 +233,7 @@ func TestNewClient(t *testing.T) {
 	t.Run("opencode client", func(t *testing.T) {
 		_, lookupErr := exec.LookPath("opencode")
 
-		client, err := NewClient(ctx, "opencode:some-model")
+		client, err := NewClient(ctx, "opencode:provider/some-model")
 		if lookupErr != nil {
 			if err == nil {
 				t.Fatal("expected error because opencode CLI is not in PATH, got nil")

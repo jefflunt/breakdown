@@ -33,11 +33,7 @@ cd breakdown
 Example `~/.breakdown/config.yml`:
 
 ```yaml
-output_folder: "~/.breakdown/output" # Directory where the plan will be generated
-llm:
-  provider: "gemini" # Supported: "gemini", "copilot", "opencode", "claude"
-  model: "gemini-3.1-flash-lite-preview"
-  api_key: "YOUR_API_KEY_HERE"
+agent_adapter: "gemini:google/gemini-3.1-flash-lite-preview"
 ```
 
 ## Usage

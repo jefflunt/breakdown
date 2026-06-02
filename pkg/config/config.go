@@ -83,3 +83,33 @@ func DefaultConfig() *Config {
 	cfg.AgentAdapter = "gemini:google/gemini-3.1-flash-lite-preview"
 	return cfg
 }
+
+// ParseAdapter parses the agent adapter string of format "cliName:provider/model"
+// and returns (cliName, provider, model, error).
+func ParseAdapter(adapter string) (string, string, string, error) {
+	if adapter == "" {
+		return "", "", "", fmt.Errorf("empty adapter string")
+	}
+
+	parts := strings.SplitN(adapter, ":", 2)
+	if len(parts) != 2 {
+		return "", "", "", fmt.Errorf("invalid adapter format: %q (expected 'cliName:provider/model')", adapter)
+	}
+
+	cliName := strings.TrimSpace(parts[0])
+	remaining := strings.TrimSpace(parts[1])
+
+	subParts := strings.SplitN(remaining, "/", 2)
+	if len(subParts) != 2 {
+		return "", "", "", fmt.Errorf("invalid adapter format: %q (expected 'cliName:provider/model')", adapter)
+	}
+
+	provider := strings.TrimSpace(subParts[0])
+	model := strings.TrimSpace(subParts[1])
+
+	if cliName == "" || provider == "" || model == "" {
+		return "", "", "", fmt.Errorf("invalid adapter: components cannot be empty")
+	}
+
+	return cliName, provider, model, nil
+}
