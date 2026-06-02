@@ -6,6 +6,7 @@
 *.dylib
 *.a
 *.o
+*.obj
 /bin/
 .build/
 
@@ -51,6 +52,9 @@ log/
 *.mprof
 *.cpu
 *.mem
+*.tmp
+*.temp
+*.bak
 
 # Test caches and throwaway test data
 coverage.txt
