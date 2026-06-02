@@ -54,7 +54,9 @@ coverage.html
 .pytest_cache/
 .nyc_output/
 
-# Editor/IDE temporary files
+# Editor/IDE temporary and configuration files
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
@@ -66,3 +68,8 @@ coverage.html
 *.db-journal
 *.db-shm
 *.db-wal
+
+# Local environment variables and secrets
+.env
+.env.local
+.env.*.local
