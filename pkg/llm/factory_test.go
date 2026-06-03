@@ -52,6 +52,13 @@ func TestParseAgentAdapter(t *testing.T) {
 			expectErr:        false,
 		},
 		{
+			name:             "valid claude format with another model",
+			input:            "claude:anthropic/claude-3-opus-20240229",
+			expectedProvider: "claude",
+			expectedModel:    "claude-3-opus-20240229",
+			expectErr:        false,
+		},
+		{
 			name:             "valid with spaces",
 			input:            "  copilot  :  anthropic/claude-haiku-4.5  ",
 			expectedProvider: "copilot",
