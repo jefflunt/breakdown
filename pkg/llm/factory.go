@@ -43,6 +43,8 @@ func parseAgentAdapter(adapter string) (string, string, error) {
 		return "opencode", provider + "/" + model, nil
 	case "copilot":
 		return "copilot", model, nil
+	case "claude":
+		return "claude", model, nil
 	default:
 		return cliName, model, nil
 	}
