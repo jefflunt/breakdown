@@ -10,6 +10,8 @@ type Config struct {
 		User    string `yaml:"user"`
 		APIKey  string `yaml:"api_key"`
 	} `yaml:"atlassian"`
+	MaxConcurrency int `yaml:"max_concurrency"`
+	MaxRetries     int `yaml:"max_retries"`
 }
 ```
 
@@ -21,6 +23,8 @@ An example `config.yml` looks like:
 
 ```yaml
 agent_adapter: "gemini:google/gemini-3.1-flash-lite-preview"
+max_concurrency: 4             # Optional: Maximum concurrent LLM requests (default 4)
+max_retries: 3                 # Optional: Maximum retry attempts for failed LLM requests (default 3)
 atlassian:
   base_url: "https://your-atlassian-instance.atlassian.net"
   user: "your-email@example.com"

@@ -5,15 +5,15 @@ The **breakdown** application is fundamentally a tree data structure orchestrato
 ## Core Concepts
 
 ### `breakdown.Planner`
-The `Planner` struct is the central orchestrator. It manages the `Root` node, configuration state, file persistence, and the communication channel (`Prompts`) to yield for user input.
+The `Planner` struct is the central orchestrator. It manages the `Root` node, configuration state, and the LLM client, using a semaphore channel to enforce concurrency limits on LLM calls.
 
 ```go
 type Planner struct {
-	mu      sync.RWMutex
-	Root    *Node
-	Config  Config
-	LLM     LLMClient
-	Prompts chan UserPrompt
+	mu           sync.RWMutex
+	Root         *Node         `json:"root"`
+	Config       Config        `json:"config"`
+	LLM          LLMClient     `json:"-"`
+	llmSemaphore chan struct{} `json:"-"`
 }
 ```
 
@@ -37,7 +37,3 @@ Once planning is complete, this method recursively traverses the task tree to ge
 - **Actionable Nodes** become Markdown files (e.g., `01-task-name.md`).
 
 This ensures the plan is readily usable in any text editor or IDE.
-
-### State Persistence
-
-The tree is saved to `<output_folder>/state.json` (by default `breakdown-output/state.json`) after *every* mutation. The `Planner.Save()` method uses `sync.RWMutex` to ensure thread-safe writes. This file acts as the source of truth for the session, meaning a planning session can be interrupted and resumed identically simply by loading the state.

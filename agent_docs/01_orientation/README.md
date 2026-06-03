@@ -47,10 +47,11 @@ breakdown/
 ├── cmd/
 │   └── breakdown/             ← CLI entry point
 ├── pkg/
+│   ├── atlassian/             ← Jira/Confluence integration client
+│   ├── breakdown/             ← Core orchestrator & filesystem generator logic
 │   ├── config/                ← YAML Configuration parsing
 │   ├── llm/                   ← Gemini/Claude/etc LLM Clients
-│   ├── breakdown/             ← Core orchestrator logic (tree, node, loop)
-│   ├── generator/             ← File/folder structure generator
+│   ├── logger/                ← Internal logger utilities
 │   └── version/               ← Binary version definitions
 ├── script/                    ← Build, test, and automation scripts
 └── agent_docs/                ← this documentation tree
